@@ -18,186 +18,68 @@
 package com.dmitrievanthony.sdt;
 
 import java.util.Arrays;
-
+import java.util.Random;
 
 public class StepTest {
 
     public static void main(String... args) {
-        double[] data = new double[]{0, 1, 2, 3};
-        double[] labels = new double[]{0, 1, 2, 3};
+        int rows = 4;
+        int cols = 4;
 
-        StepFunction function = calculateVariance(data, labels);
+        DataPartition single = new DataPartition(rows, cols);
 
-        double[] d1 = new double[]{0, 2};
-        double[] l1 = new double[]{0, 2};
+        Random rnd = new Random(123);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++)
+                single.data[i][j] = rnd.nextDouble();
+            single.labels[i] = rnd.nextDouble();
+        }
 
-        double[] d2 = new double[]{1, 3};
-        double[] l2 = new double[]{1, 3};
+        StepFunction[] functions = VarianceCalculator.calculateVariance(single.data, single.labels);
 
-        System.out.println("Single node: ");
-        System.out.println(Arrays.deepToString(function.y));
         System.out.println();
+        System.out.println("Single node: ");
+        double[][][] singleRes = VarianceCalculator.toNumeric(functions);
+        printRes(singleRes);
 
+        int numOfParts = 2;
+        DataPartition[] parts = new DataPartition[numOfParts];
+        for (int i = 0; i < numOfParts; i++)
+            parts[i] = new DataPartition(rows / numOfParts, cols);
+
+        for (int i = 0; i < rows; i++) {
+            parts[i % numOfParts].data[i / numOfParts] = single.data[i];
+            parts[i % numOfParts].labels[i / numOfParts] = single.labels[i];
+        }
+
+        System.out.println();
         System.out.println("Partitioned: ");
-        StepFunction a = calculateVariance(d1, l1);
-        StepFunction b = calculateVariance(d2, l2);
-        StepFunction c = a.add(b);
-        System.out.println(Arrays.deepToString(c.y));
+        StepFunction[][] partFunctions = new StepFunction[numOfParts][];
+        for (int i = 0; i < numOfParts; i++)
+            partFunctions[i] = VarianceCalculator.calculateVariance(parts[i].data, parts[i].labels);
+        StepFunction[] total = VarianceCalculator.add(partFunctions);
+
+        double[][][] partRes = VarianceCalculator.toNumeric(total);
+        printRes(partRes);
     }
 
-    private static StepFunction calculateVariance(double[] data, double[] labels) {
-        double[] x = new double[data.length + 1];
-        double[][] y = new double[data.length + 1][];
-
-        quickSort(data, labels);
-
-        x[0] = Double.NEGATIVE_INFINITY;
-
-        for (int i = 0; i <= data.length; i++) {
-            double ly = 0;
-            double lyy = 0;
-            double ry = 0;
-            double ryy = 0;
-
-            for (int j = 0; j < i; j++) {
-                ly += labels[j];
-                lyy += Math.pow(labels[j], 2);
-            }
-
-            for (int j = i; j < labels.length; j++) {
-                ry += labels[j];
-                ryy += Math.pow(labels[j], 2);
-            }
-
-            if (i < data.length)
-                x[i + 1] = data[i];
-            y[i] = new double[]{ly, lyy, i, ry, ryy, data.length - i};
-        }
-
-        return new StepFunction(x, y);
-    }
-
-    private static class StepFunction {
-
-        private final double[] x;
-
-        private final double[][] y;
-
-        public StepFunction(double[] x, double[][] y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public StepFunction add(StepFunction b) {
-            quickSort(x, y);
-            quickSort(b.x, b.y);
-
-            int size = 0;
-
-            int l = 0, r = 0;
-            double last = 0;
-            while (l < x.length || r < b.x.length) {
-                if (r >= b.x.length || (l < x.length && x[l] < b.x[r])) {
-                    if (size == 0 || x[l] != last) {
-                        last = x[l];
-                        size++;
-                    }
-                    l++;
-                }
-                else {
-                    if (size == 0 || b.x[r] != last) {
-                        last = b.x[r];
-                        size++;
-                    }
-                    r++;
-                }
-            }
-
-            double[] resX = new double[size];
-            double[][] resY = new double[size][];
-
-            l = 0;
-            r = 0;
-            for (int i = 0; l < x.length || r < b.x.length; i++) {
-                if (r >= b.x.length || (l < x.length && x[l] < b.x[r])) {
-                    boolean override = i > 0 && x[l] == resX[i - 1];
-                    int target = override ? i - 1 : i;
-                    resX[target] = x[l];
-                    resY[target] = override ? resY[target] : new double[y[l].length];
-
-                    for (int j = 0; j < y[l].length; j++)
-                        resY[target][j] = (i > 0 ? resY[i - 1][j] : 0) + y[l][j] - (l > 0 ? y[l - 1][j] : 0);
-                    i = target;
-                    l++;
-                }
-                else {
-                    boolean override = i > 0 && b.x[r] == resX[i - 1];
-                    int target = override ? i - 1 : i;
-                    resX[target] = b.x[r];
-                    resY[target] = override ? resY[target] : new double[b.y[r].length];
-
-                    for (int j = 0; j < b.y[r].length; j++)
-                        resY[target][j] = (i > 0 ? resY[i - 1][j] : 0) + b.y[r][j] - (r > 0 ? b.y[r - 1][j] : 0);
-                    i = target;
-                    r++;
-                }
-            }
-
-            return new StepFunction(resX, resY);
+    private static void printRes(double[][][] res) {
+        for (int col = 0; col < res.length; col++) {
+            System.out.println("For column : " + col);
+            System.out.println("Threshold : " + Arrays.toString(res[col][0]));
+            System.out.println("Variance : " + Arrays.toString(res[col][1]));
         }
     }
 
-    static void quickSort(double[] x, double[][] y) {
-        quickSort(x, y, 0, x.length - 1);
-    }
+    private static class DataPartition {
 
-    static private void quickSort(double[] x, double[][] y, int from, int to) {
-        if (from < to) {
-            double pivot = x[(from + to) / 2];
-            int i = from, j = to;
-            while (i <= j) {
-                while (x[i] < pivot) i++;
-                while (x[j] > pivot) j--;
-                if (i <= j) {
-                    double tmpX = x[i];
-                    x[i] = x[j];
-                    x[j] = tmpX;
-                    double[] tmpY = y[i];
-                    y[i] = y[j];
-                    y[j] = tmpY;
-                    i++;
-                    j--;
-                }
-            }
-            quickSort(x, y, from, j);
-            quickSort(x, y, i, to);
-        }
-    }
+        private final double[][] data;
 
-    static void quickSort(double[] x, double[] y) {
-        quickSort(x, y, 0, x.length - 1);
-    }
+        private final double[] labels;
 
-    static private void quickSort(double[] x, double[] y, int from, int to) {
-        if (from < to) {
-            double pivot = x[(from + to) / 2];
-            int i = from, j = to;
-            while (i <= j) {
-                while (x[i] < pivot) i++;
-                while (x[j] > pivot) j--;
-                if (i <= j) {
-                    double tmpX = x[i];
-                    x[i] = x[j];
-                    x[j] = tmpX;
-                    double tmpY = y[i];
-                    y[i] = y[j];
-                    y[j] = tmpY;
-                    i++;
-                    j--;
-                }
-            }
-            quickSort(x, y, from, j);
-            quickSort(x, y, i, to);
+        public DataPartition(int rows, int cols) {
+            this.data = new double[rows][cols];
+            this.labels = new double[rows];
         }
     }
 }
