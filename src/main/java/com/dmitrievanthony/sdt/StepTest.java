@@ -23,8 +23,8 @@ import java.util.Random;
 public class StepTest {
 
     public static void main(String... args) {
-        int rows = 4;
-        int cols = 4;
+        int rows = 1000;
+        int cols = 2;
 
         DataPartition single = new DataPartition(rows, cols);
 
@@ -42,7 +42,7 @@ public class StepTest {
         double[][][] singleRes = VarianceCalculator.toNumeric(functions);
         printRes(singleRes);
 
-        int numOfParts = 2;
+        int numOfParts = 10;
         DataPartition[] parts = new DataPartition[numOfParts];
         for (int i = 0; i < numOfParts; i++)
             parts[i] = new DataPartition(rows / numOfParts, cols);
@@ -55,8 +55,12 @@ public class StepTest {
         System.out.println();
         System.out.println("Partitioned: ");
         StepFunction[][] partFunctions = new StepFunction[numOfParts][];
-        for (int i = 0; i < numOfParts; i++)
-            partFunctions[i] = VarianceCalculator.calculateVariance(parts[i].data, parts[i].labels);
+        for (int i = 0; i < numOfParts; i++) {
+            StepFunction[] partFunction = VarianceCalculator.calculateVariance(parts[i].data, parts[i].labels);
+            for (int j = 0; j < partFunction.length; j++)
+                partFunction[j] = StepFunctionCompressor.compress(partFunction[j]);
+            partFunctions[i] = partFunction;
+        }
         StepFunction[] total = VarianceCalculator.add(partFunctions);
 
         double[][][] partRes = VarianceCalculator.toNumeric(total);
