@@ -21,7 +21,6 @@ import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.distributed.criteria.Gini;
 import com.dmitrievanthony.tree.core.distributed.criteria.GiniSplittingCriteria;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -29,15 +28,11 @@ import java.util.function.Predicate;
 
 public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<Gini> {
 
-    private static final double PROBABILITY_THRESHOLD = 0.95;
-
-    private static final int DEEP_THRESHOLD = 100;
-
-    public DistributedDecisionTreeClassifier() {
+    public DistributedDecisionTreeClassifier(int maxDeep, double minImpurityDecrease) {
         super(new GiniSplittingCriteria(new HashMap<Double, Integer>() {{
             put(1.0, 1);
             put(0.0, 0);
-        }}), Gini.class);
+        }}), maxDeep, minImpurityDecrease, Gini.class);
     }
 
     @Override Optional<LeafNode> createLeafNode(Dataset dataset, Predicate<double[]> pred, int deep) {
@@ -69,16 +64,13 @@ public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<G
             totalCnt += e.getValue();
 
         for (Map.Entry<Double, Integer> e : cnt.entrySet()) {
-            if (1.0 * e.getValue() / totalCnt >= PROBABILITY_THRESHOLD)
-                thresholdBr = true;
-
             if (e.getValue() > bestCnt) {
                 bestCnt = e.getValue();
                 bestVal = e.getKey();
             }
         }
 
-        if (thresholdBr || deep >= DEEP_THRESHOLD)
+        if (thresholdBr || deep >= 10)
             return Optional.of(new LeafNode(bestVal));
 
         return Optional.empty();

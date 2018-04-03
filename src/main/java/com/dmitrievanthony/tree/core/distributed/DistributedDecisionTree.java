@@ -36,10 +36,16 @@ public abstract class DistributedDecisionTree<T extends Comparable<T> & WithAdd<
 
     private final SplittingCriteria<T> criterionCalculator;
 
+    private final int maxDeep;
+
+    private final double minImpurityDecrease;
+
     private final Class<T> clazz;
 
-    public DistributedDecisionTree(SplittingCriteria<T> criterionCalculator, Class<T> clazz) {
+    public DistributedDecisionTree(SplittingCriteria<T> criterionCalculator, int maxDeep, double minImpurityDecrease, Class<T> clazz) {
         this.criterionCalculator = criterionCalculator;
+        this.maxDeep = maxDeep;
+        this.minImpurityDecrease = minImpurityDecrease;
         this.clazz = clazz;
     }
 

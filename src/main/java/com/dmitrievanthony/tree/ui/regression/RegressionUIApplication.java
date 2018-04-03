@@ -20,6 +20,7 @@ package com.dmitrievanthony.tree.ui.regression;
 import com.dmitrievanthony.tree.core.ConditionalNode;
 import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.Node;
+import com.dmitrievanthony.tree.ui.util.ControlPanelListener;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -31,12 +32,10 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 
-public abstract class RegressionUIApplication extends JPanel {
-
-    static final int size = 500;
+public abstract class RegressionUIApplication extends JPanel implements ControlPanelListener {
 
     private final List<Point> points = new ArrayList<>();
 
@@ -44,36 +43,26 @@ public abstract class RegressionUIApplication extends JPanel {
 
     private int maxDeep = 2;
 
+    private double minImpurityDecrease = 0;
+
     public RegressionUIApplication() {
+        setBorder(BorderFactory.createEtchedBorder());
+
+        setPreferredSize(new Dimension(500, 500));
+
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override public void mouseDragged(MouseEvent e) {
                 points.add(new Point(e.getX(), e.getY()));
                 update();
-                repaint();
-                super.mouseDragged(e);
             }
         });
-
-        JSlider slider = new JSlider();
-        slider.setSize(200, 200);
-        slider.setMaximum(50);
-        slider.setVisible(true);
-        slider.setValue(maxDeep);
-        slider.addChangeListener(e -> {
-            maxDeep = slider.getValue();
-            update();
-            repaint();
-        });
-        add(slider);
     }
 
-    abstract Node regress(double[][] x, double[] y, int maxDeep);
+    abstract Node regress(double[][] x, double[] y, int maxDeep, double minImpurityDecrease);
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        setPreferredSize(new Dimension(size, size));
 
         Graphics2D graphics2D = (Graphics2D)g;
         graphics2D.setRenderingHint(
@@ -108,9 +97,11 @@ public abstract class RegressionUIApplication extends JPanel {
             y[i] = pnt.y;
         }
 
-        Node tree = regress(x, y, maxDeep);
-        lines = toLines(tree, 0, size);
+        Node tree = regress(x, y, maxDeep, minImpurityDecrease);
+        lines = toLines(tree, 0, 500);
         lines.sort(Comparator.comparingInt(l -> l.x1));
+
+        repaint();
     }
 
     private List<Line> toLines(Node node, int left, int right) {
@@ -127,6 +118,21 @@ public abstract class RegressionUIApplication extends JPanel {
         }
 
         return lines;
+    }
+
+    @Override public void doOnMaxDeepChange(int maxDeep) {
+        this.maxDeep = maxDeep;
+        update();
+    }
+
+    @Override public void doOnMinImpurityDecreaseChange(double minImpurityDecrease) {
+        this.minImpurityDecrease = minImpurityDecrease;
+        update();
+    }
+
+    @Override public void doOnClean() {
+        points.clear();
+        update();
     }
 
     private static class Line {

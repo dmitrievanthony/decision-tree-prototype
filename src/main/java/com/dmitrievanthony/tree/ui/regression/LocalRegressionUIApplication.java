@@ -19,6 +19,7 @@ package com.dmitrievanthony.tree.ui.regression;
 
 import com.dmitrievanthony.tree.core.Node;
 import com.dmitrievanthony.tree.core.local.LocalDecisionTreeRegressor;
+import com.dmitrievanthony.tree.ui.util.ControlPanel;
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -27,13 +28,20 @@ public class LocalRegressionUIApplication extends RegressionUIApplication {
 
     public static void main(String... args) {
         JFrame f = new JFrame();
-        f.setSize(size, size);
+        f.setSize(500, 650);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        f.add(new LocalRegressionUIApplication(), BorderLayout.CENTER);
+
+        ControlPanel ctrlPanel = new ControlPanel();
+        LocalRegressionUIApplication application = new LocalRegressionUIApplication();
+        ctrlPanel.addListener(application);
+
+        f.add(ctrlPanel, BorderLayout.NORTH);
+        f.add(application, BorderLayout.SOUTH);
+
         f.setVisible(true);
     }
 
-    @Override Node regress(double[][] x, double[] y, int maxDeep) {
-        return new LocalDecisionTreeRegressor(maxDeep).fit(x, y);
+    @Override Node regress(double[][] x, double[] y, int maxDeep, double minImpurityDecrease) {
+        return new LocalDecisionTreeRegressor(maxDeep, minImpurityDecrease).fit(x, y);
     }
 }

@@ -32,11 +32,11 @@ public class LocalDecisionTreeClassifier extends LocalDecisionTree {
 
     private static final SplittingCriteria defaultSplittingCriteria = new GiniSplittingCriteria();
 
-    public LocalDecisionTreeClassifier() {
-        super(defaultSplittingCriteria);
+    public LocalDecisionTreeClassifier(int maxDeep, double minImpurityDecrease) {
+        super(defaultSplittingCriteria, maxDeep, minImpurityDecrease);
     }
 
-    @Override Optional<LeafNode> createLeafNode(double[] labels, int deep) {
+    @Override LeafNode createLeafNode(double[] labels) {
         Map<Double, Integer> cnt = new HashMap<>();
         for (double label : labels) {
             if (cnt.containsKey(label))
@@ -47,25 +47,14 @@ public class LocalDecisionTreeClassifier extends LocalDecisionTree {
 
         double bestVal = 0;
         int bestCnt = -1;
-        boolean thresholdBr = false;
 
         for (Map.Entry<Double, Integer> e : cnt.entrySet()) {
-            if (1.0 * e.getValue() / labels.length >= PROBABILITY_THRESHOLD)
-                thresholdBr = true;
-
             if (e.getValue() > bestCnt) {
                 bestCnt = e.getValue();
                 bestVal = e.getKey();
             }
         }
 
-        if (thresholdBr || deep >= DEEP_THRESHOLD)
-            return Optional.of(new LeafNode(bestVal));
-
-        return Optional.empty();
-    }
-
-    @Override LeafNode createLeafNodeWithoutConditions(double[] labels) {
-        throw new IllegalStateException();
+        return new LeafNode(bestVal);
     }
 }

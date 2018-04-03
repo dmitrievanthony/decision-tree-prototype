@@ -20,6 +20,7 @@ package com.dmitrievanthony.tree.ui.classification;
 import com.dmitrievanthony.tree.core.ConditionalNode;
 import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.Node;
+import com.dmitrievanthony.tree.ui.util.ControlPanelListener;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -28,35 +29,39 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-public abstract class ClassificationUIApplication extends JPanel {
-
-    static final int size = 500;
+public abstract class ClassificationUIApplication extends JPanel implements ControlPanelListener {
 
     private final Map<Point, Boolean> points = new HashMap<>();
 
     private List<Rectangle> rectangles;
 
+    private int maxDeep = 2;
+
+    private double minImpurityDecrease = 0;
+
     public ClassificationUIApplication() {
+        setBorder(BorderFactory.createEtchedBorder());
+
+        setPreferredSize(new Dimension(500, 500));
+
         addMouseListener(new MouseAdapter() {
             @Override public void mousePressed(MouseEvent e) {
                 switch (e.getButton()) {
                     case 1: {
                         points.put(new Point(e.getX(), e.getY()), true);
                         update();
-                        repaint();
                         break;
                     }
                     case 3: {
                         points.put(new Point(e.getX(), e.getY()), false);
                         update();
-                        repaint();
                         break;
                     }
                 }
@@ -64,13 +69,11 @@ public abstract class ClassificationUIApplication extends JPanel {
         });
     }
 
-    abstract Node classify(double[][] x, double[] y);
+    abstract Node classify(double[][] x, double[] y, int maxDeep, double minImpurityDecrease);
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        setPreferredSize(new Dimension(size, size));
 
         Graphics2D graphics2D = (Graphics2D)g;
         graphics2D.setRenderingHint(
@@ -108,8 +111,10 @@ public abstract class ClassificationUIApplication extends JPanel {
             ptr++;
         }
 
-        Node tree = classify(x, y);
-        rectangles = toRectangles(tree, 0, size, 0, size);
+        Node tree = classify(x, y, maxDeep, minImpurityDecrease);
+        rectangles = toRectangles(tree, 0, 500, 0, 500);
+
+        repaint();
     }
 
     private List<Rectangle> toRectangles(Node node, int xFrom, int xTo, int yFrom, int yTo) {
@@ -132,6 +137,20 @@ public abstract class ClassificationUIApplication extends JPanel {
         }
 
         return res;
+    }
+
+    @Override public void doOnMaxDeepChange(int maxDeep) {
+        this.maxDeep = maxDeep;
+        update();
+    }
+
+    @Override public void doOnMinImpurityDecreaseChange(double minImpurityDecrease) {
+        this.minImpurityDecrease = minImpurityDecrease;
+        update();
+    }
+
+    @Override public void doOnClean() {
+        points.clear();
     }
 
     private static class Rectangle {

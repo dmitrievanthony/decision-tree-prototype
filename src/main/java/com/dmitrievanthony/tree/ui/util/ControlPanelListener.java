@@ -15,22 +15,13 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.tree.core.distributed;
+package com.dmitrievanthony.tree.ui.util;
 
-import com.dmitrievanthony.tree.core.LeafNode;
-import com.dmitrievanthony.tree.core.distributed.criteria.MSE;
-import com.dmitrievanthony.tree.core.distributed.criteria.MSESplittingCriteria;
-import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
-import java.util.Optional;
-import java.util.function.Predicate;
+public interface ControlPanelListener {
 
-public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MSE> {
+    public void doOnMaxDeepChange(int maxDeep);
 
-    public DistributedDecisionTreeRegressor(int maxDeep, double minImpurityDecrease) {
-        super(new MSESplittingCriteria(), maxDeep, minImpurityDecrease, MSE.class);
-    }
+    public void doOnMinImpurityDecreaseChange(double minImpurityDecrease);
 
-    @Override Optional<LeafNode> createLeafNode(Dataset dataset, Predicate<double[]> pred, int deep) {
-        return Optional.empty();
-    }
+    public void doOnClean();
 }

@@ -19,24 +19,29 @@ package com.dmitrievanthony.tree.ui.classification;
 
 import com.dmitrievanthony.tree.core.Node;
 import com.dmitrievanthony.tree.core.local.LocalDecisionTreeClassifier;
+import com.dmitrievanthony.tree.ui.util.ControlPanel;
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 public class LocalClassificationUIApplication extends ClassificationUIApplication {
 
-    private static final LocalDecisionTreeClassifier classifier = new LocalDecisionTreeClassifier();
-
     public static void main(String... args) {
         JFrame f = new JFrame();
-        f.setSize(size, size);
+        f.setSize(500, 650);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        f.add(new LocalClassificationUIApplication(), BorderLayout.CENTER);
+
+        ControlPanel ctrlPanel = new ControlPanel();
+        LocalClassificationUIApplication application = new LocalClassificationUIApplication();
+        ctrlPanel.addListener(application);
+
+        f.add(ctrlPanel, BorderLayout.NORTH);
+        f.add(application, BorderLayout.SOUTH);
+
         f.setVisible(true);
     }
 
-    @Override Node classify(double[][] x, double[] y) {
-        Node tree = classifier.fit(x, y);
-        return tree;
+    @Override Node classify(double[][] x, double[] y, int maxDeep, double minImpurityDecrease) {
+        return new LocalDecisionTreeClassifier(maxDeep, minImpurityDecrease).fit(x, y);
     }
 }

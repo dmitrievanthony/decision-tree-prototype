@@ -30,8 +30,14 @@ public abstract class LocalDecisionTree {
 
     private final SplittingCriteria criteria;
 
-    public LocalDecisionTree(SplittingCriteria criteria) {
+    private final int maxDeep;
+
+    private final double minImpurityDecrease;
+
+    public LocalDecisionTree(SplittingCriteria criteria, int maxDeep, double minImpurityDecrease) {
         this.criteria = criteria;
+        this.maxDeep = maxDeep;
+        this.minImpurityDecrease = minImpurityDecrease;
     }
 
     public Node fit(double[][] features, double[] labels) {
@@ -39,10 +45,8 @@ public abstract class LocalDecisionTree {
     }
 
     private Node fit(double[][] features, double[] labels, int deep) {
-        Optional<LeafNode> leftNode = createLeafNode(labels, deep);
-
-        if (leftNode.isPresent())
-            return leftNode.get();
+        if (deep >= maxDeep)
+            return createLeafNode(labels);
 
         int bestCol = -1;
         SplitPoint bestSplitPnt = null;
@@ -67,7 +71,7 @@ public abstract class LocalDecisionTree {
         double[] rightLabels = Arrays.copyOfRange(labels, bestSplitPnt.getLeftSize(), labels.length);
 
         if (leftFeatures.length == 0)
-            return createLeafNodeWithoutConditions(labels);
+            return createLeafNode(labels);
 
         return new ConditionalNode(
             bestCol,
@@ -77,7 +81,5 @@ public abstract class LocalDecisionTree {
         );
     }
 
-    abstract Optional<LeafNode> createLeafNode(double[] labels, int deep);
-
-    abstract LeafNode createLeafNodeWithoutConditions(double[] labels);
+    abstract LeafNode createLeafNode(double[] labels);
 }

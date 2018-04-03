@@ -21,6 +21,7 @@ import com.dmitrievanthony.tree.core.Node;
 import com.dmitrievanthony.tree.core.distributed.DistributedDecisionTreeClassifier;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import com.dmitrievanthony.tree.core.distributed.dataset.Partition;
+import com.dmitrievanthony.tree.ui.util.ControlPanel;
 import java.awt.BorderLayout;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,17 +30,22 @@ import javax.swing.WindowConstants;
 
 public class DistributedClassificationUIApplication extends ClassificationUIApplication {
 
-    private static final DistributedDecisionTreeClassifier classifier = new DistributedDecisionTreeClassifier();
-
     public static void main(String... args) {
         JFrame f = new JFrame();
-        f.setSize(size, size);
+        f.setSize(500, 650);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        f.add(new DistributedClassificationUIApplication(), BorderLayout.CENTER);
+
+        ControlPanel ctrlPanel = new ControlPanel();
+        DistributedClassificationUIApplication application = new DistributedClassificationUIApplication();
+        ctrlPanel.addListener(application);
+
+        f.add(ctrlPanel, BorderLayout.NORTH);
+        f.add(application, BorderLayout.SOUTH);
+
         f.setVisible(true);
     }
 
-    @Override Node classify(double[][] x, double[] y) {
+    @Override Node classify(double[][] x, double[] y, int maxDeep, double minImpurityDecrease) {
 
         Partition part = new Partition(x, y);
 
@@ -48,6 +54,6 @@ public class DistributedClassificationUIApplication extends ClassificationUIAppl
 
         Dataset dataset = new Dataset(parts);
 
-        return classifier.fit(dataset);
+        return new DistributedDecisionTreeClassifier(maxDeep, minImpurityDecrease).fit(dataset);
     }
 }
