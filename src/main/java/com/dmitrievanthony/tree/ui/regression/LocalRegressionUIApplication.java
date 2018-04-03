@@ -15,28 +15,25 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.tree;
+package com.dmitrievanthony.tree.ui.regression;
 
 import com.dmitrievanthony.tree.core.Node;
-import com.dmitrievanthony.tree.core.local.LocalDecisionTreeClassifier;
+import com.dmitrievanthony.tree.core.local.LocalDecisionTreeRegressor;
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-public class LocalDecisionTreeUIApplication extends UIApplication {
-
-    private static final LocalDecisionTreeClassifier classifier = new LocalDecisionTreeClassifier();
+public class LocalRegressionUIApplication extends RegressionUIApplication {
 
     public static void main(String... args) {
-        JFrame f=new JFrame();
-        f.setSize(size,size);
+        JFrame f = new JFrame();
+        f.setSize(size, size);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        f.add(new LocalDecisionTreeUIApplication(), BorderLayout.CENTER);
+        f.add(new LocalRegressionUIApplication(), BorderLayout.CENTER);
         f.setVisible(true);
     }
 
-    @Override Node classify(double[][] x, double[] y) {
-        Node tree = classifier.fit(x, y);
-        return tree;
+    @Override Node regress(double[][] x, double[] y, int maxDeep) {
+        return new LocalDecisionTreeRegressor(maxDeep).fit(x, y);
     }
 }

@@ -26,22 +26,20 @@ public class MSESplittingCriteria implements SplittingCriteria {
             double sumL = 0;
             double sumR = 0;
             for (int i = 0; i < leftSize; i++)
-                sumL += labels[i];
+                sumL += labels[i] / leftSize;
             for (int i = leftSize; i < labels.length; i++)
-                sumR += labels[i];
-            double meanL = sumL / leftSize;
-            double meanR = sumR / (labels.length - leftSize);
+                sumR += labels[i] / (labels.length - leftSize);
+            double meanL = sumL;
+            double meanR = sumR;
 
             double resL = 0;
             double resR = 0;
             for (int i = 0; i < leftSize; i++)
-                resL += Math.pow(labels[i] - meanL, 2);
+                resL += (Math.pow(labels[i] - meanL, 2) / leftSize);
             for (int i = leftSize; i < labels.length; i++)
-                resR += Math.pow(labels[i] - meanR, 2);
+                resR += (Math.pow(labels[i] - meanR, 2) / (labels.length - leftSize));
 
-            double mse = resR / (labels.length - leftSize);
-            if (leftSize != 0)
-                mse += resL / leftSize;
+            double mse = resR + resL;
 
             if (bestSplitPnt == null || mse < bestSplitPnt.getCriteriaVal())
                 bestSplitPnt = new SplitPoint(leftSize, mse);

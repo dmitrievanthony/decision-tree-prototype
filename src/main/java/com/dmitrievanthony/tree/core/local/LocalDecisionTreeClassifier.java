@@ -64,4 +64,8 @@ public class LocalDecisionTreeClassifier extends LocalDecisionTree {
 
         return Optional.empty();
     }
+
+    @Override LeafNode createLeafNodeWithoutConditions(double[] labels) {
+        throw new IllegalStateException();
+    }
 }

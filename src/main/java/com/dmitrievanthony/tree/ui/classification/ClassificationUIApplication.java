@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.tree;
+package com.dmitrievanthony.tree.ui.classification;
 
 import com.dmitrievanthony.tree.core.ConditionalNode;
 import com.dmitrievanthony.tree.core.LeafNode;
@@ -28,23 +28,24 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JPanel;
 
-public abstract class UIApplication extends JPanel {
+public abstract class ClassificationUIApplication extends JPanel {
 
-    public static final int size = 500;
+    static final int size = 500;
 
     private final Map<Point, Boolean> points = new HashMap<>();
 
     private List<Rectangle> rectangles;
 
-    public UIApplication() {
+    public ClassificationUIApplication() {
         addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
+            @Override public void mousePressed(MouseEvent e) {
                 switch (e.getButton()) {
                     case 1: {
                         points.put(new Point(e.getX(), e.getY()), true);

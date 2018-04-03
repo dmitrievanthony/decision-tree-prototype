@@ -24,13 +24,40 @@ import java.util.Optional;
 
 public class LocalDecisionTreeRegressor extends LocalDecisionTree {
 
+    private static final double VARIANCE_THRESHOLD = 0;
+
     private static final SplittingCriteria defaultSplittingCriteria = new MSESplittingCriteria();
 
-    public LocalDecisionTreeRegressor() {
+    private final int maxDeep;
+
+    public LocalDecisionTreeRegressor(int maxDeep) {
         super(defaultSplittingCriteria);
+        this.maxDeep = maxDeep;
     }
 
     @Override Optional<LeafNode> createLeafNode(double[] labels, int deep) {
+        double mean = 0;
+        for (int i = 0; i < labels.length; i++)
+            mean += labels[i];
+        mean = mean / labels.length;
+
+        double variance = 0;
+        for (int i = 0; i < labels.length; i++)
+            variance += Math.pow(labels[i] - mean, 2);
+        variance = variance / labels.length;
+
+        if (deep >= maxDeep || variance < VARIANCE_THRESHOLD)
+            return Optional.of(new LeafNode(mean));
+
         return Optional.empty();
+    }
+
+    @Override LeafNode createLeafNodeWithoutConditions(double[] labels) {
+        double mean = 0;
+        for (int i = 0; i < labels.length; i++)
+            mean += labels[i];
+        mean = mean / labels.length;
+
+        return new LeafNode(mean);
     }
 }

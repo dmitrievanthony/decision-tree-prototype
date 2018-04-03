@@ -66,6 +66,9 @@ public abstract class LocalDecisionTree {
         double[] leftLabels = Arrays.copyOfRange(labels, 0, bestSplitPnt.getLeftSize());
         double[] rightLabels = Arrays.copyOfRange(labels, bestSplitPnt.getLeftSize(), labels.length);
 
+        if (leftFeatures.length == 0)
+            return createLeafNodeWithoutConditions(labels);
+
         return new ConditionalNode(
             bestCol,
             (leftFeatures[leftFeatures.length - 1][bestCol] + rightFeatures[0][bestCol]) / 2,
@@ -75,4 +78,6 @@ public abstract class LocalDecisionTree {
     }
 
     abstract Optional<LeafNode> createLeafNode(double[] labels, int deep);
+
+    abstract LeafNode createLeafNodeWithoutConditions(double[] labels);
 }

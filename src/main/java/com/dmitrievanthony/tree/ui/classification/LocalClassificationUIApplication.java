@@ -15,39 +15,28 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.tree;
+package com.dmitrievanthony.tree.ui.classification;
 
 import com.dmitrievanthony.tree.core.Node;
-import com.dmitrievanthony.tree.core.distributed.DistributedDecisionTreeClassifier;
-import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
-import com.dmitrievanthony.tree.core.distributed.dataset.Partition;
+import com.dmitrievanthony.tree.core.local.LocalDecisionTreeClassifier;
 import java.awt.BorderLayout;
-import java.util.HashSet;
-import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-public class DistributedDecisionTreeUIApplication extends UIApplication {
+public class LocalClassificationUIApplication extends ClassificationUIApplication {
 
-    private static final DistributedDecisionTreeClassifier classifier = new DistributedDecisionTreeClassifier();
+    private static final LocalDecisionTreeClassifier classifier = new LocalDecisionTreeClassifier();
 
     public static void main(String... args) {
-        JFrame f=new JFrame();
-        f.setSize(size,size);
+        JFrame f = new JFrame();
+        f.setSize(size, size);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        f.add(new DistributedDecisionTreeUIApplication(), BorderLayout.CENTER);
+        f.add(new LocalClassificationUIApplication(), BorderLayout.CENTER);
         f.setVisible(true);
     }
 
     @Override Node classify(double[][] x, double[] y) {
-
-        Partition part = new Partition(x, y);
-
-        Set<Partition> parts = new HashSet<>();
-        parts.add(part);
-
-        Dataset dataset = new Dataset(parts);
-
-        return classifier.fit(dataset);
+        Node tree = classifier.fit(x, y);
+        return tree;
     }
 }
