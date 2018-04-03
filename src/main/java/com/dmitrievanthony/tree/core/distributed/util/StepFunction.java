@@ -20,7 +20,7 @@ package com.dmitrievanthony.tree.core.distributed.util;
 import com.dmitrievanthony.tree.utils.Utils;
 import java.lang.reflect.Array;
 
-public class StepFunction<T extends Comparable<T> & WithAdd<T> & WithSubtract<T>> implements WithAdd<StepFunction<T>> {
+public class StepFunction<T extends ImpurityMeasure<T>> {
 
     private final double[] x;
 
@@ -35,7 +35,7 @@ public class StepFunction<T extends Comparable<T> & WithAdd<T> & WithSubtract<T>
     }
 
     @SuppressWarnings("unchecked")
-    @Override public StepFunction<T> add(StepFunction<T> b) {
+    public StepFunction<T> add(StepFunction<T> b) {
         Utils.quickSort(x, y);
         Utils.quickSort(b.x, b.y);
 

@@ -31,7 +31,7 @@ public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<G
         super(new GiniSplittingCriteria(new HashMap<Double, Integer>() {{
             put(1.0, 1);
             put(0.0, 0);
-        }}), maxDeep, minImpurityDecrease, Gini.class);
+        }}), maxDeep, minImpurityDecrease);
     }
 
     @Override LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred) {

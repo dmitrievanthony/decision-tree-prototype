@@ -17,10 +17,9 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
-import com.dmitrievanthony.tree.core.distributed.util.WithAdd;
-import com.dmitrievanthony.tree.core.distributed.util.WithSubtract;
+import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
 
-public class MSE implements Comparable<MSE>, WithAdd<MSE>, WithSubtract<MSE> {
+public class MSE implements ImpurityMeasure<MSE> {
 
     private final double leftY;
 
@@ -43,6 +42,13 @@ public class MSE implements Comparable<MSE>, WithAdd<MSE>, WithSubtract<MSE> {
         this.rightCnt = rightCnt;
     }
 
+    @Override public double impurity() {
+        double left = leftY2 - 2.0 * leftY / leftCnt * leftY + Math.pow(leftY / leftCnt, 2) * leftCnt;
+        double right = rightY2 - 2.0 * rightY / rightCnt * rightY + Math.pow(rightY / rightCnt, 2) * rightCnt;
+
+        return left + right;
+    }
+
     @Override public MSE add(MSE b) {
         return new MSE(
             leftY + b.leftY,
@@ -63,22 +69,5 @@ public class MSE implements Comparable<MSE>, WithAdd<MSE>, WithSubtract<MSE> {
             rightY2 - b.rightY2,
             rightCnt - b.rightCnt
         );
-    }
-
-    @Override public int compareTo(MSE o) {
-        return Double.compare(calculate(), o.calculate());
-    }
-
-    private double calculate() {
-        double left = leftY2 - 2.0 * leftY / leftCnt * leftY + Math.pow(leftY / leftCnt, 2) * leftCnt;
-        double right = rightY2 - 2.0 * rightY / rightCnt * rightY + Math.pow(rightY / rightCnt, 2) * rightCnt;
-
-        return left + right;
-    }
-
-    @Override public String toString() {
-        return "Variance{" +
-            calculate() +
-            '}';
     }
 }

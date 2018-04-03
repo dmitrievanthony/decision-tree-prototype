@@ -22,17 +22,12 @@ import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.Node;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import com.dmitrievanthony.tree.core.distributed.criteria.SplittingCriteria;
+import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
 import com.dmitrievanthony.tree.core.distributed.util.StepFunction;
-import com.dmitrievanthony.tree.core.distributed.util.WithAdd;
-import com.dmitrievanthony.tree.core.distributed.util.WithSubtract;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
-public abstract class DistributedDecisionTree<T extends Comparable<T> & WithAdd<T> & WithSubtract<T>> {
+public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
 
     private final SplittingCriteria<T> criterionCalculator;
 
@@ -40,146 +35,121 @@ public abstract class DistributedDecisionTree<T extends Comparable<T> & WithAdd<
 
     private final double minImpurityDecrease;
 
-    private final Class<T> clazz;
-
-    public DistributedDecisionTree(SplittingCriteria<T> criterionCalculator, int maxDeep, double minImpurityDecrease, Class<T> clazz) {
+    public DistributedDecisionTree(SplittingCriteria<T> criterionCalculator, int maxDeep, double minImpurityDecrease) {
         this.criterionCalculator = criterionCalculator;
         this.maxDeep = maxDeep;
         this.minImpurityDecrease = minImpurityDecrease;
-        this.clazz = clazz;
     }
 
     public Node fit(Dataset dataset) {
-        return split(dataset, e -> true, 0);
+        return fit(dataset, e -> true, 0);
     }
 
-    @SuppressWarnings("unchecked")
-    private Node split(Dataset dataset, Predicate<double[]> pred, int deep) {
+    abstract LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred);
+
+    private Node fit(Dataset dataset, Predicate<double[]> pred, int deep) {
         if (deep >= maxDeep)
             return createLeafNode(dataset, pred);
 
-        StepFunction<T>[] sf = dataset.compute(part -> {
-            List<double[]> filteredFeatures = new ArrayList<>();
-            List<Double> filteredLabels = new ArrayList<>();
+        StepFunction<T>[] criterionFunctions = calculateCriterionForAllColumns(dataset, pred);
 
-            for (int i = 0; i < part.getLabels().length; i++) {
-                double[] f = part.getFeatures()[i];
-                if (pred.test(f)) {
-                    double l = part.getLabels()[i];
-                    filteredFeatures.add(f);
-                    filteredLabels.add(l);
-                }
-            }
-
-            double[][] ff = new double[filteredFeatures.size()][];
-            double[] fl = new double[filteredLabels.size()];
-
-            for (int i = 0; i < filteredLabels.size(); i++) {
-                ff[i] = filteredFeatures.get(i);
-                fl[i] = filteredLabels.get(i);
-            }
-
-            if (ff.length == 0)
-                return null;
-            else
-                return criterionCalculator.calculate(ff, fl);
-
-        }, this::reduce);
-
-        T bestVar = null;
-        double bestThreshold = 0;
-        int bestCol = 0;
-
-        if (sf != null) {
-            for (int i = 0; i < sf.length; i++) {
-                StepFunction<T> fff = sf[i];
-
-                for (int j = 1; j < fff.getY().length - 1; j++) {
-                    T v = fff.getY()[j];
-                    if (bestVar == null || v.compareTo(bestVar) > 0) {
-                        bestVar = v;
-                        bestCol = i;
-                        bestThreshold = (fff.getX()[j] + fff.getX()[j + 1]) / 2.0;
-                    }
-                }
-            }
-        }
-
-        int finalBestCol = bestCol;
-        double finalBestThreshold = bestThreshold;
+        SplitPoint splitPnt = calculateBestSplitPoint(criterionFunctions);
 
         return new ConditionalNode(
-            bestCol,
-            bestThreshold,
-            split(dataset, pred.and(f -> {
-                boolean r = f[finalBestCol] > finalBestThreshold;
-//                System.out.println("Test object " + Arrays.toString(f) + " f[" + finalBestCol + "] >= " + finalBestThreshold + ", answer is " + r);
-                return r;
-            }), deep + 1),
-            split(dataset, pred.and(f -> {
-                boolean r = f[finalBestCol] <= finalBestThreshold;
-//                System.out.println("Test object " + Arrays.toString(f) + " f[" + finalBestCol + "] < " + finalBestThreshold + ", answer is " + r);
-                return r;
-            }), deep + 1)
+            splitPnt.col,
+            splitPnt.threshold,
+            fit(dataset, updatePredicateForThenNode(pred, splitPnt), deep + 1),
+            fit(dataset, updatePredicateForElseNode(pred, splitPnt), deep + 1)
         );
     }
 
-    private LeafNode createLeafNode1(Dataset dataset, Predicate<double[]> pred) {
-        Map<Double, Integer> r = dataset.compute(part -> {
-            Map<Double, Integer> cntr = new HashMap<>();
+    private StepFunction<T>[] calculateCriterionForAllColumns(Dataset dataset, Predicate<double[]> pred) {
+        return dataset.compute(
+            part -> {
+                double[][] allFeatures = part.getFeatures();
+                double[] allLabels = part.getLabels();
 
-            for (int i = 0; i < part.getLabels().length; i++) {
-                if (pred.test(part.getFeatures()[i])) {
-                    double lb = part.getLabels()[i];
-                    if (cntr.containsKey(lb))
-                        cntr.put(lb, cntr.get(lb) + 1);
-                    else
-                        cntr.put(lb, 1);
+                int nodeSize = 0;
+                for (int i = 0; i < allFeatures.length; i++)
+                    nodeSize += pred.test(allFeatures[i]) ? 1 : 0;
+
+                if (nodeSize != 0) {
+                    double[][] nodeFeatures = new double[nodeSize][];
+                    double[] nodeLabels = new double[nodeSize];
+
+                    int ptr = 0;
+                    for (int i = 0; i < allFeatures.length; i++) {
+                        if (pred.test(allFeatures[i])) {
+                            nodeFeatures[ptr] = allFeatures[i];
+                            nodeLabels[ptr] = allLabels[i];
+                            ptr++;
+                        }
+                    }
+
+                    return criterionCalculator.calculate(nodeFeatures, nodeLabels);
                 }
-            }
 
-            return cntr;
-        }, (a, b) -> {
-            if (a != null) {
-                for (Map.Entry<Double, Integer> e : b.entrySet()) {
-                    if (a.containsKey(e.getKey()))
-                        b.put(e.getKey(), e.getValue() + a.get(e.getKey()));
-                }
-            }
-            return b;
-        });
-
-        double maxVal = 0;
-        int maxCnt = 0;
-        int totalCnt = 0;
-
-        for (Map.Entry<Double, Integer> e : r.entrySet()) {
-            if (e.getValue() > maxCnt) {
-                maxVal = e.getKey();
-                maxCnt = e.getValue();
-            }
-            totalCnt += e.getValue();
-        }
-
-        if (maxCnt == totalCnt)
-            return new LeafNode(maxVal);
-        else
-            return null;
+                return null;
+            },
+            this::reduce
+        );
     }
 
-    @SuppressWarnings("unchecked")
+    private SplitPoint calculateBestSplitPoint(StepFunction<T>[] criterionFunctions) {
+        SplitPoint res = null;
+
+        for (int col = 0; col < criterionFunctions.length; col++) {
+            StepFunction<T> criterionFunctionForCol = criterionFunctions[col];
+
+            double[] arguments = criterionFunctionForCol.getX();
+            T[] values = criterionFunctionForCol.getY();
+
+            for (int leftSize = 1; leftSize < values.length - 1; leftSize++) {
+                if (res == null || values[leftSize].compareTo(res.val) > 0)
+                    res = new SplitPoint(values[leftSize], col, calculateThreshold(arguments, leftSize));
+            }
+        }
+
+        return res;
+    }
+
     private StepFunction<T>[] reduce(StepFunction<T>[] a, StepFunction<T>[] b) {
         if (a == null)
             return b;
         if (b == null)
             return a;
         else {
-            StepFunction<T>[] res = new StepFunction[a.length];
-            for (int i = 0; i < a.length; i++)
-                res[i] = a[i].add(b[i]);
+            StepFunction<T>[] res = Arrays.copyOf(a, a.length);
+            for (int i = 0; i < res.length; i++)
+                res[i] = res[i].add(b[i]);
             return res;
         }
     }
 
-    abstract LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred);
+    private double calculateThreshold(double[] arguments, int leftSize) {
+        return (arguments[leftSize] + arguments[leftSize + 1]) / 2.0;
+    }
+
+    private Predicate<double[]> updatePredicateForThenNode(Predicate<double[]> pred, SplitPoint splitPnt) {
+        return pred.and(f -> f[splitPnt.col] > splitPnt.threshold);
+    }
+
+    private Predicate<double[]> updatePredicateForElseNode(Predicate<double[]> pred, SplitPoint splitPnt) {
+        return pred.and(f -> f[splitPnt.col] <= splitPnt.threshold);
+    }
+
+    private class SplitPoint {
+
+        private final T val;
+
+        private final int col;
+
+        private final double threshold;
+
+        public SplitPoint(T val, int col, double threshold) {
+            this.val = val;
+            this.col = col;
+            this.threshold = threshold;
+        }
+    }
 }

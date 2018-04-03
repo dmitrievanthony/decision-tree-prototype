@@ -17,11 +17,10 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
+import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
 import com.dmitrievanthony.tree.core.distributed.util.StepFunction;
-import com.dmitrievanthony.tree.core.distributed.util.WithAdd;
-import com.dmitrievanthony.tree.core.distributed.util.WithSubtract;
 
-public interface SplittingCriteria<T extends Comparable<T> & WithAdd<T> & WithSubtract<T>>{
+public interface SplittingCriteria<T extends ImpurityMeasure<T>>{
 
     public StepFunction<T>[] calculate(double[][] data, double[] labels);
 }

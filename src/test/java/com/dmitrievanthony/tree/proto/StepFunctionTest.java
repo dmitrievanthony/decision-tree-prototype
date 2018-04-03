@@ -17,9 +17,8 @@
 
 package com.dmitrievanthony.tree.proto;
 
+import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
 import com.dmitrievanthony.tree.core.distributed.util.StepFunction;
-import com.dmitrievanthony.tree.core.distributed.util.WithAdd;
-import com.dmitrievanthony.tree.core.distributed.util.WithSubtract;
 import java.util.Objects;
 import org.junit.Test;
 
@@ -116,12 +115,16 @@ public class StepFunctionTest {
         return results;
     }
 
-    private static class FuncResult implements Comparable<FuncResult>, WithAdd<FuncResult>, WithSubtract<FuncResult> {
+    private static class FuncResult implements ImpurityMeasure<FuncResult> {
 
         private final double val;
 
         public FuncResult(double val) {
             this.val = val;
+        }
+
+        @Override public double impurity() {
+            return val;
         }
 
         @Override public FuncResult add(FuncResult b) {
@@ -130,10 +133,6 @@ public class StepFunctionTest {
 
         @Override public FuncResult subtract(FuncResult b) {
             return new FuncResult(val - b.val);
-        }
-
-        @Override public int compareTo(FuncResult o) {
-            return Double.compare(val, o.val);
         }
 
         @Override public boolean equals(Object o) {
@@ -149,12 +148,6 @@ public class StepFunctionTest {
         @Override public int hashCode() {
 
             return Objects.hash(val);
-        }
-
-        @Override public String toString() {
-            return "FuncResult{" +
-                "val=" + val +
-                '}';
         }
     }
 }

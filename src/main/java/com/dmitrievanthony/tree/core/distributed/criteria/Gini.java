@@ -17,10 +17,9 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
-import com.dmitrievanthony.tree.core.distributed.util.WithAdd;
-import com.dmitrievanthony.tree.core.distributed.util.WithSubtract;
+import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
 
-public class Gini implements Comparable<Gini>, WithAdd<Gini>, WithSubtract<Gini> {
+public class Gini implements ImpurityMeasure<Gini> {
 
     private final long[] left;
 
@@ -29,6 +28,26 @@ public class Gini implements Comparable<Gini>, WithAdd<Gini>, WithSubtract<Gini>
     public Gini(long[] left, long[] right) {
         this.left = left;
         this.right = right;
+    }
+
+    @Override public double impurity() {
+        long leftCnt = 0;
+        long rightCnt = 0;
+
+        double leftRes = 0;
+        double rightRes = 0;
+
+        for (int i = 0; i < left.length; i++) {
+            leftRes += Math.pow(left[i], 2);
+            leftCnt += left[i];
+        }
+
+        for (int i = 0; i < right.length; i++) {
+            rightRes += Math.pow(right[i], 2);
+            rightCnt += right[i];
+        }
+
+        return leftRes / leftCnt + rightRes / rightCnt;
     }
 
     @Override public Gini add(Gini b) {
@@ -59,35 +78,5 @@ public class Gini implements Comparable<Gini>, WithAdd<Gini>, WithSubtract<Gini>
         }
 
         return new Gini(leftRes, rightRes);
-    }
-
-    @Override public int compareTo(Gini o) {
-        return Double.compare(calculate(), o.calculate());
-    }
-
-    private double calculate() {
-        long leftCnt = 0;
-        long rightCnt = 0;
-
-        double leftRes = 0;
-        double rightRes = 0;
-
-        for (int i = 0; i < left.length; i++) {
-            leftRes += Math.pow(left[i], 2);
-            leftCnt += left[i];
-        }
-
-        for (int i = 0; i < right.length; i++) {
-            rightRes += Math.pow(right[i], 2);
-            rightCnt += right[i];
-        }
-
-        return leftRes / leftCnt + rightRes / rightCnt;
-    }
-
-    @Override public String toString() {
-        return "Gini{" +
-            calculate() +
-            '}';
     }
 }

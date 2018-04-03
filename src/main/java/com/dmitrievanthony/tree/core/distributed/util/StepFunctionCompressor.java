@@ -25,7 +25,7 @@ import java.util.List;
 public class StepFunctionCompressor {
 
     @SuppressWarnings("unchecked")
-    public static <T extends Comparable<T> & WithAdd<T> & WithSubtract<T>> StepFunction<T> compress(StepFunction<T> function, Class<T> clazz) {
+    public static <T extends ImpurityMeasure<T>> StepFunction<T> compress(StepFunction<T> function, Class<T> clazz) {
         double[] x = function.getX();
         T[] y = function.getY();
 
@@ -89,7 +89,7 @@ public class StepFunctionCompressor {
         return points;
     }
 
-    private static class StepFunctionPoint<T extends Comparable<T> & WithAdd<T> & WithSubtract<T>> {
+    private static class StepFunctionPoint<T extends ImpurityMeasure<T>> {
 
         private final double x;
 

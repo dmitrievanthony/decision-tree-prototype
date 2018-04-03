@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MSE> {
 
     public DistributedDecisionTreeRegressor(int maxDeep, double minImpurityDecrease) {
-        super(new MSESplittingCriteria(), maxDeep, minImpurityDecrease, MSE.class);
+        super(new MSESplittingCriteria(), maxDeep, minImpurityDecrease);
     }
 
     @Override LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred) {
