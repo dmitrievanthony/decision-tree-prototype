@@ -15,9 +15,24 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.sdt.criterion;
+package com.dmitrievanthony.tree.core.distributed.dataset;
 
-public interface Criterion<T extends Comparable<T>> {
+public class Partition {
 
-    T calculate(double[] labels, int lSize, T prevVal);
+    private final double[][] features;
+
+    private final double[] labels;
+
+    public Partition(double[][] features, double[] labels) {
+        this.features = features;
+        this.labels = labels;
+    }
+
+    public double[][] getFeatures() {
+        return features;
+    }
+
+    public double[] getLabels() {
+        return labels;
+    }
 }

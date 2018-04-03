@@ -1,0 +1,102 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dmitrievanthony.tree.core.distributed;
+
+import com.dmitrievanthony.tree.core.LeafNode;
+import com.dmitrievanthony.tree.core.distributed.criteria.Gini;
+import com.dmitrievanthony.tree.core.distributed.criteria.GiniSplittingCriteria;
+import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
+
+public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<Gini> {
+
+    private static final double PROBABILITY_THRESHOLD = 0.95;
+
+    private static final int DEEP_THRESHOLD = 100;
+
+    public DistributedDecisionTreeClassifier() {
+        super(new GiniSplittingCriteria(new HashMap<Double, Integer>() {{
+            put(1.0, 1);
+            put(0.0, 0);
+        }}), Gini.class);
+    }
+
+    @Override Optional<LeafNode> createLeafNode(Dataset dataset, Predicate<double[]> pred, int deep) {
+        Map<Double, Integer> cnt = dataset.compute(part -> {
+            Map<Double, Integer> map = new HashMap<>();
+
+            double[][] features = part.getFeatures();
+            double[] labels = part.getLabels();
+
+            for (int i = 0; i < features.length; i++) {
+                if (pred.test(features[i])) {
+                    double lb = labels[i];
+                    if (map.containsKey(lb))
+                        map.put(lb, map.get(lb) + 1);
+                    else
+                        map.put(lb, 1);
+                }
+            }
+
+            return map;
+        }, this::reduce);
+
+        double bestVal = 0;
+        int bestCnt = -1;
+        boolean thresholdBr = false;
+
+        int totalCnt = 0;
+        for (Map.Entry<Double, Integer> e : cnt.entrySet())
+            totalCnt += e.getValue();
+
+        for (Map.Entry<Double, Integer> e : cnt.entrySet()) {
+            if (1.0 * e.getValue() / totalCnt >= PROBABILITY_THRESHOLD)
+                thresholdBr = true;
+
+            if (e.getValue() > bestCnt) {
+                bestCnt = e.getValue();
+                bestVal = e.getKey();
+            }
+        }
+
+        if (thresholdBr || deep >= DEEP_THRESHOLD)
+            return Optional.of(new LeafNode(bestVal));
+
+        return Optional.empty();
+    }
+
+    private Map<Double, Integer> reduce(Map<Double, Integer> a, Map<Double, Integer> b) {
+        if (a == null)
+            return b;
+        else if (b == null)
+            return a;
+        else {
+            for (Map.Entry<Double, Integer> e : b.entrySet()) {
+                if (a.containsKey(e.getKey()))
+                    a.put(e.getKey(), a.get(e.getKey()) + e.getValue());
+                else
+                    a.put(e.getKey(), e.getValue());
+            }
+            return a;
+        }
+    }
+}

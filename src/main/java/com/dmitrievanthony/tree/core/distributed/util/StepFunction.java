@@ -15,20 +15,27 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.sdt;
+package com.dmitrievanthony.tree.core.distributed.util;
 
-public class StepFunction {
+import com.dmitrievanthony.tree.utils.Utils;
+import java.lang.reflect.Array;
+
+public class StepFunction<T extends Comparable<T> & WithAdd<T> & WithSubtract<T>> implements WithAdd<StepFunction<T>> {
 
     private final double[] x;
 
-    private final double[][] y;
+    private final T[] y;
 
-    public StepFunction(double[] x, double[][] y) {
+    private final Class<T> clazz;
+
+    public StepFunction(double[] x, T[] y, Class<T> clazz) {
         this.x = x;
         this.y = y;
+        this.clazz = clazz;
     }
 
-    public StepFunction add(StepFunction b) {
+    @SuppressWarnings("unchecked")
+    @Override public StepFunction<T> add(StepFunction<T> b) {
         Utils.quickSort(x, y);
         Utils.quickSort(b.x, b.y);
 
@@ -54,7 +61,7 @@ public class StepFunction {
         }
 
         double[] resX = new double[size];
-        double[][] resY = new double[size][];
+        T[] resY = (T[]) Array.newInstance(clazz, size);
 
         l = 0;
         r = 0;
@@ -62,35 +69,39 @@ public class StepFunction {
             if (r >= b.x.length || (l < x.length && x[l] < b.x[r])) {
                 boolean override = i > 0 && x[l] == resX[i - 1];
                 int target = override ? i - 1 : i;
-                resX[target] = x[l];
-                resY[target] = override ? resY[target] : new double[y[l].length];
 
-                for (int j = 0; j < y[l].length; j++)
-                    resY[target][j] = (i > 0 ? resY[i - 1][j] : 0) + y[l][j] - (l > 0 ? y[l - 1][j] : 0);
+                resY[target] = override ? resY[target] : null;
+                resY[target] = i > 0 ? resY[i - 1] : null;
+                resY[target] = resY[target] == null ? y[l] : resY[target].add(y[l]);
+                if (l > 0)
+                    resY[target] = resY[target].subtract(y[l - 1]);
+
+                resX[target] = x[l];
                 i = target;
                 l++;
             }
             else {
                 boolean override = i > 0 && b.x[r] == resX[i - 1];
                 int target = override ? i - 1 : i;
+                resY[target] = override ? resY[target] : null;
+                resY[target] = i > 0 ? resY[i - 1] : null;
+                resY[target] = resY[target] == null ? b.y[r] : resY[target].add(y[r]);
+                if (r > 0)
+                    resY[target] = resY[target].subtract(b.y[r - 1]);
                 resX[target] = b.x[r];
-                resY[target] = override ? resY[target] : new double[b.y[r].length];
-
-                for (int j = 0; j < b.y[r].length; j++)
-                    resY[target][j] = (i > 0 ? resY[i - 1][j] : 0) + b.y[r][j] - (r > 0 ? b.y[r - 1][j] : 0);
                 i = target;
                 r++;
             }
         }
 
-        return new StepFunction(resX, resY);
+        return new StepFunction(resX, resY, clazz);
     }
 
     public double[] getX() {
         return x;
     }
 
-    public double[][] getY() {
+    public T[] getY() {
         return y;
     }
 }

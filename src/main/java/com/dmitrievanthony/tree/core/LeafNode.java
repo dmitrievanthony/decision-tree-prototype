@@ -15,31 +15,21 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.sdt;
+package com.dmitrievanthony.tree.core;
 
-import com.dmitrievanthony.sdt.criterion.GiniCriterion;
-import java.util.Random;
+public class LeafNode implements Node {
 
-public class Application {
-    public static void main(String... args) {
-        int size = 1000;
-        double[][] features = new double[size][2];
-        double[] labels = new double[size];
+    private final double val;
 
-        Random rnd = new Random();
-        for (int i = 0; i < size; i++) {
-            double x = rnd.nextDouble() - 0.5;
-            double y = rnd.nextDouble() - 0.5;
+    public LeafNode(double val) {
+        this.val = val;
+    }
 
-            features[i][0] = x;
-            features[i][1] = y;
+    @Override public double predict(double[] features) {
+        return val;
+    }
 
-            labels[i] = x * y > 0 ? 1 : 0;
-        }
-
-        DecisionTree tree = new DecisionTree<>(new GiniCriterion());
-        Node node = tree.fit(features, labels);
-
-        tree.print(node, 0);
+    public double getVal() {
+        return val;
     }
 }

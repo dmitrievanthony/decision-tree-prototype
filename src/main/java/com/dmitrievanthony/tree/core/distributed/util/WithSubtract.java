@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.sdt;
+package com.dmitrievanthony.tree.core.distributed.util;
 
-public interface Node {
+public interface WithSubtract<T> {
 
-    double predict(double[] features);
+    public T subtract(T b);
 }

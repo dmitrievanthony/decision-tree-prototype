@@ -15,27 +15,22 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.sdt.criterion;
+package com.dmitrievanthony.tree.core.local;
 
-public class MSECriterion implements Criterion<Double> {
+import com.dmitrievanthony.tree.core.LeafNode;
+import com.dmitrievanthony.tree.core.local.criteria.MSESplittingCriteria;
+import com.dmitrievanthony.tree.core.local.criteria.SplittingCriteria;
+import java.util.Optional;
 
-    @Override public Double calculate(double[] labels, int lSize, Double prevVal) {
-        double sumL = 0;
-        double sumR = 0;
-        for (int i = 0; i < lSize; i++)
-            sumL += labels[i];
-        for (int i = lSize; i < labels.length; i++)
-            sumR += labels[i];
-        double meanL = sumL / lSize;
-        double meanR = sumR / (labels.length - lSize);
+public class LocalDecisionTreeRegressor extends LocalDecisionTree {
 
-        double resL = 0;
-        double resR = 0;
-        for (int i = 0; i < lSize; i++)
-            resL += Math.pow(labels[i] - meanL, 2);
-        for (int i = lSize; i < labels.length; i++)
-            resR += Math.pow(labels[i] - meanR, 2);
+    private static final SplittingCriteria defaultSplittingCriteria = new MSESplittingCriteria();
 
-        return resL / lSize + resR / (labels.length - lSize);
+    public LocalDecisionTreeRegressor() {
+        super(defaultSplittingCriteria);
+    }
+
+    @Override Optional<LeafNode> createLeafNode(double[] labels, int deep) {
+        return Optional.empty();
     }
 }

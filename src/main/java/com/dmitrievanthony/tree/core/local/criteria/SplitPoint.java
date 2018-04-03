@@ -15,42 +15,31 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.sdt;
+package com.dmitrievanthony.tree.core.local.criteria;
 
-public class ConditionalNode implements Node {
+public class SplitPoint {
 
-    private final int col;
+    private final int leftSize;
 
-    private final double threshold;
+    private final double criteriaVal;
 
-    private final Node thenNode;
-
-    private final Node elseNode;
-
-    public ConditionalNode(int col, double threshold, Node thenNode, Node elseNode) {
-        this.col = col;
-        this.threshold = threshold;
-        this.thenNode = thenNode;
-        this.elseNode = elseNode;
+    public SplitPoint(int leftSize, double criteriaVal) {
+        this.leftSize = leftSize;
+        this.criteriaVal = criteriaVal;
     }
 
-    @Override public double predict(double[] features) {
-        return features[col] >= threshold ? thenNode.predict(features) : elseNode.predict(features);
+    public int getLeftSize() {
+        return leftSize;
     }
 
-    public int getCol() {
-        return col;
+    public double getCriteriaVal() {
+        return criteriaVal;
     }
 
-    public double getThreshold() {
-        return threshold;
-    }
-
-    public Node getThenNode() {
-        return thenNode;
-    }
-
-    public Node getElseNode() {
-        return elseNode;
+    @Override public String toString() {
+        return "SplitPoint{" +
+            "leftSize=" + leftSize +
+            ", criteriaVal=" + criteriaVal +
+            '}';
     }
 }

@@ -15,21 +15,13 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.sdt;
+package com.dmitrievanthony.tree.core.distributed.criteria;
 
-public class LeafNode implements Node {
+import com.dmitrievanthony.tree.core.distributed.util.StepFunction;
+import com.dmitrievanthony.tree.core.distributed.util.WithAdd;
+import com.dmitrievanthony.tree.core.distributed.util.WithSubtract;
 
-    private final double val;
+public interface SplittingCriteria<T extends Comparable<T> & WithAdd<T> & WithSubtract<T>>{
 
-    public LeafNode(double val) {
-        this.val = val;
-    }
-
-    @Override public double predict(double[] features) {
-        return val;
-    }
-
-    public double getVal() {
-        return val;
-    }
+    public StepFunction<T>[] calculate(double[][] data, double[] labels);
 }
