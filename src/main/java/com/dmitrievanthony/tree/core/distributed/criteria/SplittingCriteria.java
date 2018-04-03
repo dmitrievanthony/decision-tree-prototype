@@ -17,9 +17,6 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
-import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
-import com.dmitrievanthony.tree.core.distributed.util.StepFunction;
-
 public interface SplittingCriteria<T extends ImpurityMeasure<T>>{
 
     public StepFunction<T>[] calculate(double[][] data, double[] labels);

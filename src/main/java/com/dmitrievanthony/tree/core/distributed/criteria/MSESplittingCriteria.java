@@ -18,19 +18,18 @@
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
 import com.dmitrievanthony.tree.utils.Utils;
-import com.dmitrievanthony.tree.core.distributed.util.StepFunction;
 
-public class MSESplittingCriteria implements SplittingCriteria<MSE> {
+public class MSESplittingCriteria implements SplittingCriteria<MSEImpurityMeasure> {
 
     @SuppressWarnings("unchecked")
-    @Override public StepFunction<MSE>[] calculate(double[][] data, double[] labels) {
-        StepFunction<MSE>[] res = new StepFunction[data[0].length];
+    @Override public StepFunction<MSEImpurityMeasure>[] calculate(double[][] data, double[] labels) {
+        StepFunction<MSEImpurityMeasure>[] res = new StepFunction[data[0].length];
 
         for (int col = 0; col < res.length; col++) {
             Utils.quickSort(data, labels, col);
 
             double[] x = new double[data.length + 1];
-            MSE[] y = new MSE[data.length + 1];
+            MSEImpurityMeasure[] y = new MSEImpurityMeasure[data.length + 1];
 
             x[0] = Double.NEGATIVE_INFINITY;
 
@@ -52,10 +51,10 @@ public class MSESplittingCriteria implements SplittingCriteria<MSE> {
 
                 if (i < data.length)
                     x[i + 1] = data[i][col];
-                y[i] = new MSE(ly, lyy, i, ry, ryy, data.length - i);
+                y[i] = new MSEImpurityMeasure(ly, lyy, i, ry, ryy, data.length - i);
             }
 
-            res[col] = new StepFunction(x, y, MSE.class);
+            res[col] = new StepFunction(x, y, MSEImpurityMeasure.class);
         }
 
         return res;

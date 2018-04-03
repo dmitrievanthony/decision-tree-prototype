@@ -18,12 +18,11 @@
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
 import com.dmitrievanthony.tree.utils.Utils;
-import com.dmitrievanthony.tree.core.distributed.util.StepFunction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class GiniSplittingCriteria implements SplittingCriteria<Gini> {
+public class GiniSplittingCriteria implements SplittingCriteria<GiniImpurityMeasure> {
 
     private final Map<Double, Integer> map;
 
@@ -32,15 +31,15 @@ public class GiniSplittingCriteria implements SplittingCriteria<Gini> {
     }
 
     @SuppressWarnings("unchecked")
-    @Override public StepFunction<Gini>[] calculate(double[][] data, double[] labels) {
+    @Override public StepFunction<GiniImpurityMeasure>[] calculate(double[][] data, double[] labels) {
 
-        StepFunction<Gini>[] res = new StepFunction[data[0].length];
+        StepFunction<GiniImpurityMeasure>[] res = new StepFunction[data[0].length];
 
         for (int col = 0; col < res.length; col++) {
             Utils.quickSort(data, labels, col);
 
             List<Double> x = new ArrayList<>();
-            List<Gini> y = new ArrayList<>();
+            List<GiniImpurityMeasure> y = new ArrayList<>();
 
             x.add(Double.NEGATIVE_INFINITY);
 
@@ -64,11 +63,11 @@ public class GiniSplittingCriteria implements SplittingCriteria<Gini> {
                 if (i < data.length)
                     x.add(data[i][col]);
 
-                y.add(new Gini(left, right));
+                y.add(new GiniImpurityMeasure(left, right));
             }
 
             double[] xx = new double[x.size()];
-            Gini[] yy = new Gini[y.size()];
+            GiniImpurityMeasure[] yy = new GiniImpurityMeasure[y.size()];
 
             for (int i = 0; i < x.size(); i++)
                 xx[i] = x.get(i);
@@ -76,7 +75,7 @@ public class GiniSplittingCriteria implements SplittingCriteria<Gini> {
             for (int i = 0; i < y.size(); i++)
                 yy[i] = y.get(i);
 
-            res[col] = new StepFunction(xx, yy, Gini.class);
+            res[col] = new StepFunction(xx, yy, GiniImpurityMeasure.class);
         }
 
         return res;
