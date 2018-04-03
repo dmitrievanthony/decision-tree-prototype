@@ -17,5 +17,42 @@
 
 package com.dmitrievanthony.tree.ui.regression;
 
-public class DistributedRegressionUIApplication {
+import com.dmitrievanthony.tree.core.Node;
+import com.dmitrievanthony.tree.core.distributed.DistributedDecisionTreeRegressor;
+import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
+import com.dmitrievanthony.tree.core.distributed.dataset.Partition;
+import com.dmitrievanthony.tree.ui.util.ControlPanel;
+import java.awt.BorderLayout;
+import java.util.HashSet;
+import java.util.Set;
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
+
+public class DistributedRegressionUIApplication extends RegressionUIApplication {
+
+    public static void main(String... args) {
+        JFrame f = new JFrame();
+        f.setSize(500, 650);
+        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        ControlPanel ctrlPanel = new ControlPanel();
+        DistributedRegressionUIApplication application = new DistributedRegressionUIApplication();
+        ctrlPanel.addListener(application);
+
+        f.add(ctrlPanel, BorderLayout.NORTH);
+        f.add(application, BorderLayout.SOUTH);
+
+        f.setVisible(true);
+    }
+
+    @Override Node regress(double[][] x, double[] y, int maxDeep, double minImpurityDecrease) {
+        Partition part = new Partition(x, y);
+
+        Set<Partition> parts = new HashSet<>();
+        parts.add(part);
+
+        Dataset dataset = new Dataset(parts);
+
+        return new DistributedDecisionTreeRegressor(maxDeep, minImpurityDecrease).fit(dataset);
+    }
 }

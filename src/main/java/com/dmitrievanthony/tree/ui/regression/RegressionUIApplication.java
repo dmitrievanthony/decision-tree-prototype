@@ -88,18 +88,22 @@ public abstract class RegressionUIApplication extends JPanel implements ControlP
     }
 
     private void update() {
-        double[][] x = new double[points.size()][];
-        double[] y = new double[points.size()];
+        if (!points.isEmpty()) {
+            double[][] x = new double[points.size()][];
+            double[] y = new double[points.size()];
 
-        for (int i = 0; i < points.size(); i++) {
-            Point pnt = points.get(i);
-            x[i] = new double[] {pnt.x};
-            y[i] = pnt.y;
+            for (int i = 0; i < points.size(); i++) {
+                Point pnt = points.get(i);
+                x[i] = new double[] {pnt.x};
+                y[i] = pnt.y;
+            }
+
+            Node tree = regress(x, y, maxDeep, minImpurityDecrease);
+            lines = toLines(tree, 0, 500);
+            lines.sort(Comparator.comparingInt(l -> l.x1));
         }
-
-        Node tree = regress(x, y, maxDeep, minImpurityDecrease);
-        lines = toLines(tree, 0, 500);
-        lines.sort(Comparator.comparingInt(l -> l.x1));
+        else
+            lines.clear();
 
         repaint();
     }

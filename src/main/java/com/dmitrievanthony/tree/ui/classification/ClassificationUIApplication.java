@@ -100,19 +100,23 @@ public abstract class ClassificationUIApplication extends JPanel implements Cont
         double[][] x = new double[points.size()][];
         double[] y = new double[points.size()];
 
-        int ptr = 0;
-        for (Map.Entry<Point, Boolean> e : points.entrySet()) {
-            Point pnt = e.getKey();
-            Boolean clazz = e.getValue();
+        if (!points.isEmpty()) {
+            int ptr = 0;
+            for (Map.Entry<Point, Boolean> e : points.entrySet()) {
+                Point pnt = e.getKey();
+                Boolean clazz = e.getValue();
 
-            x[ptr] = new double[] {pnt.x, pnt.y};
-            y[ptr] = clazz ? 1 : 0;
+                x[ptr] = new double[] {pnt.x, pnt.y};
+                y[ptr] = clazz ? 1 : 0;
 
-            ptr++;
+                ptr++;
+            }
+
+            Node tree = classify(x, y, maxDeep, minImpurityDecrease);
+            rectangles = toRectangles(tree, 0, 500, 0, 500);
         }
-
-        Node tree = classify(x, y, maxDeep, minImpurityDecrease);
-        rectangles = toRectangles(tree, 0, 500, 0, 500);
+        else
+            rectangles.clear();
 
         repaint();
     }

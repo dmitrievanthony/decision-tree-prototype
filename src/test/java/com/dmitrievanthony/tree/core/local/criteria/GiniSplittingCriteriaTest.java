@@ -32,7 +32,7 @@ public class GiniSplittingCriteriaTest {
         SplitPoint pnt = criteria.findBestSplit(labels);
 
         assertEquals(3, pnt.getLeftSize());
-        assertEquals(6.0, pnt.getCriteriaVal(), 1e-6);
+        assertEquals(-6.0, pnt.getCriteriaVal(), 1e-6);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class GiniSplittingCriteriaTest {
         SplitPoint pnt = criteria.findBestSplit(labels);
 
         assertEquals(3, pnt.getLeftSize());
-        assertEquals(6.0, pnt.getCriteriaVal(), 1e-6);
+        assertEquals(-6.0, pnt.getCriteriaVal(), 1e-6);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class GiniSplittingCriteriaTest {
         SplitPoint pnt = criteria.findBestSplit(labels);
 
         assertEquals(0, pnt.getLeftSize());
-        assertEquals(1.0, pnt.getCriteriaVal(), 1e-6);
+        assertEquals(-1.0, pnt.getCriteriaVal(), 1e-6);
     }
 
     @Test

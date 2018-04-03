@@ -55,10 +55,8 @@ public abstract class DistributedDecisionTree<T extends Comparable<T> & WithAdd<
 
     @SuppressWarnings("unchecked")
     private Node split(Dataset dataset, Predicate<double[]> pred, int deep) {
-        LeafNode ln = createLeafNode(dataset, pred);
-
-        if (ln != null)
-            return ln;
+        if (deep >= maxDeep)
+            return createLeafNode(dataset, pred);
 
         StepFunction<T>[] sf = dataset.compute(part -> {
             List<double[]> filteredFeatures = new ArrayList<>();
@@ -92,15 +90,17 @@ public abstract class DistributedDecisionTree<T extends Comparable<T> & WithAdd<
         double bestThreshold = 0;
         int bestCol = 0;
 
-        for (int i = 0; i < sf.length; i++) {
-            StepFunction<T> fff = sf[i];
+        if (sf != null) {
+            for (int i = 0; i < sf.length; i++) {
+                StepFunction<T> fff = sf[i];
 
-            for (int j = 1; j < fff.getY().length - 1; j++) {
-                T v = fff.getY()[j];
-                if (bestVar == null || v.compareTo(bestVar) > 0) {
-                    bestVar = v;
-                    bestCol = i;
-                    bestThreshold = (fff.getX()[j] + fff.getX()[j + 1]) / 2.0;
+                for (int j = 1; j < fff.getY().length - 1; j++) {
+                    T v = fff.getY()[j];
+                    if (bestVar == null || v.compareTo(bestVar) > 0) {
+                        bestVar = v;
+                        bestCol = i;
+                        bestThreshold = (fff.getX()[j] + fff.getX()[j + 1]) / 2.0;
+                    }
                 }
             }
         }
@@ -124,7 +124,7 @@ public abstract class DistributedDecisionTree<T extends Comparable<T> & WithAdd<
         );
     }
 
-    private LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred) {
+    private LeafNode createLeafNode1(Dataset dataset, Predicate<double[]> pred) {
         Map<Double, Integer> r = dataset.compute(part -> {
             Map<Double, Integer> cntr = new HashMap<>();
 
@@ -181,5 +181,5 @@ public abstract class DistributedDecisionTree<T extends Comparable<T> & WithAdd<
         }
     }
 
-    abstract Optional<LeafNode> createLeafNode(Dataset dataset, Predicate<double[]> pred, int deep);
+    abstract LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred);
 }

@@ -21,7 +21,6 @@ import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.distributed.criteria.MSE;
 import com.dmitrievanthony.tree.core.distributed.criteria.MSESplittingCriteria;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MSE> {
@@ -30,7 +29,43 @@ public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MS
         super(new MSESplittingCriteria(), maxDeep, minImpurityDecrease, MSE.class);
     }
 
-    @Override Optional<LeafNode> createLeafNode(Dataset dataset, Predicate<double[]> pred, int deep) {
-        return Optional.empty();
+    @Override LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred) {
+        double[] aa = dataset.compute(part -> {
+            double[] res = new double[2];
+
+            double mean = 0;
+            int cnt = 0;
+            for (int i = 0; i < part.getLabels().length; i++) {
+                if (pred.test(part.getFeatures()[i])) {
+                    mean += part.getLabels()[i];
+                    cnt++;
+                }
+            }
+            mean = mean / cnt;
+
+            res[0] = mean;
+            res[1] = cnt;
+
+            return res;
+        }, this::reduce);
+
+        return new LeafNode(aa[0]);
+    }
+
+    private double[] reduce(double[] a, double[] b) {
+        if (a == null)
+            return b;
+        else if (b == null)
+            return a;
+        else {
+            double aMean = a[0];
+            double aCnt = a[1];
+            double bMean = b[0];
+            double bCnt = b[1];
+
+            double mean = (aMean * aCnt + bMean * bCnt) / (aCnt + bCnt);
+
+            return new double[]{mean, aCnt + bCnt};
+        }
     }
 }

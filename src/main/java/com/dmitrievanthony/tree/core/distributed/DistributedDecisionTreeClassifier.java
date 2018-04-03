@@ -23,7 +23,6 @@ import com.dmitrievanthony.tree.core.distributed.criteria.GiniSplittingCriteria;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<Gini> {
@@ -35,7 +34,7 @@ public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<G
         }}), maxDeep, minImpurityDecrease, Gini.class);
     }
 
-    @Override Optional<LeafNode> createLeafNode(Dataset dataset, Predicate<double[]> pred, int deep) {
+    @Override LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred) {
         Map<Double, Integer> cnt = dataset.compute(part -> {
             Map<Double, Integer> map = new HashMap<>();
 
@@ -57,11 +56,6 @@ public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<G
 
         double bestVal = 0;
         int bestCnt = -1;
-        boolean thresholdBr = false;
-
-        int totalCnt = 0;
-        for (Map.Entry<Double, Integer> e : cnt.entrySet())
-            totalCnt += e.getValue();
 
         for (Map.Entry<Double, Integer> e : cnt.entrySet()) {
             if (e.getValue() > bestCnt) {
@@ -70,10 +64,7 @@ public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<G
             }
         }
 
-        if (thresholdBr || deep >= 10)
-            return Optional.of(new LeafNode(bestVal));
-
-        return Optional.empty();
+        return new LeafNode(bestVal);
     }
 
     private Map<Double, Integer> reduce(Map<Double, Integer> a, Map<Double, Integer> b) {
