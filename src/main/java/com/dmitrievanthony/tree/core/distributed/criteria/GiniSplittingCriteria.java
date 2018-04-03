@@ -75,7 +75,7 @@ public class GiniSplittingCriteria implements SplittingCriteria<GiniImpurityMeas
             for (int i = 0; i < y.size(); i++)
                 yy[i] = y.get(i);
 
-            res[col] = new StepFunction(xx, yy, GiniImpurityMeasure.class);
+            res[col] = new StepFunction(xx, yy);
         }
 
         return res;

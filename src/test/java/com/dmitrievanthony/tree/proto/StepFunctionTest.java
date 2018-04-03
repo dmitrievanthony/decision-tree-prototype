@@ -30,13 +30,11 @@ public class StepFunctionTest {
     public void testAddIncreasing() {
         StepFunction<FuncResult> a = new StepFunction<>(
             createX(Double.NEGATIVE_INFINITY, 1, 2),
-            createY(0, 1, 2),
-            FuncResult.class
+            createY(0, 1, 2)
         );
         StepFunction<FuncResult> b = new StepFunction<>(
             createX(Double.NEGATIVE_INFINITY, 1.5, 2.5),
-            createY(0, 1, 2),
-            FuncResult.class
+            createY(0, 1, 2)
         );
 
         StepFunction<FuncResult> c = a.add(b);
@@ -49,13 +47,11 @@ public class StepFunctionTest {
     public void testAddDecreasing() {
         StepFunction<FuncResult> a = new StepFunction<>(
             createX(Double.NEGATIVE_INFINITY, 1, 2),
-            createY(2, 1, 0),
-            FuncResult.class
+            createY(2, 1, 0)
         );
         StepFunction<FuncResult> b = new StepFunction<>(
             createX(Double.NEGATIVE_INFINITY, 1.5, 2.5),
-            createY(2, 1, 0),
-            FuncResult.class
+            createY(2, 1, 0)
         );
 
         StepFunction<FuncResult> c = a.add(b);
@@ -68,13 +64,11 @@ public class StepFunctionTest {
     public void testAddSamePointDecreasing() {
         StepFunction<FuncResult> a = new StepFunction<>(
             createX(Double.NEGATIVE_INFINITY, 1, 2),
-            createY(2, 1, 0),
-            FuncResult.class
+            createY(2, 1, 0)
         );
         StepFunction<FuncResult> b = new StepFunction<>(
             createX(Double.NEGATIVE_INFINITY, 1, 2.5),
-            createY(2, 1, 0),
-            FuncResult.class
+            createY(2, 1, 0)
         );
 
         StepFunction<FuncResult> c = a.add(b);
@@ -87,13 +81,11 @@ public class StepFunctionTest {
     public void testAddSamePointIncreasing() {
         StepFunction<FuncResult> a = new StepFunction<>(
             createX(Double.NEGATIVE_INFINITY, 1, 2),
-            createY(0, 1, 2),
-            FuncResult.class
+            createY(0, 1, 2)
         );
         StepFunction<FuncResult> b = new StepFunction<>(
             createX(Double.NEGATIVE_INFINITY, 1, 2.5),
-            createY(0, 1, 2),
-            FuncResult.class
+            createY(0, 1, 2)
         );
 
         StepFunction<FuncResult> c = a.add(b);

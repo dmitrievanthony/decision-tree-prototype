@@ -19,6 +19,7 @@ package com.dmitrievanthony.tree.core.distributed.criteria;
 
 import com.dmitrievanthony.tree.utils.Utils;
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class StepFunction<T extends ImpurityMeasure<T>> {
 
@@ -26,15 +27,11 @@ public class StepFunction<T extends ImpurityMeasure<T>> {
 
     private final T[] y;
 
-    private final Class<T> clazz;
-
-    public StepFunction(double[] x, T[] y, Class<T> clazz) {
+    public StepFunction(double[] x, T[] y) {
         this.x = x;
         this.y = y;
-        this.clazz = clazz;
     }
 
-    @SuppressWarnings("unchecked")
     public StepFunction<T> add(StepFunction<T> b) {
         Utils.quickSort(x, y);
         Utils.quickSort(b.x, b.y);
@@ -61,7 +58,7 @@ public class StepFunction<T extends ImpurityMeasure<T>> {
         }
 
         double[] resX = new double[size];
-        T[] resY = (T[]) Array.newInstance(clazz, size);
+        T[] resY = Arrays.copyOf(y, size);
 
         l = 0;
         r = 0;
@@ -94,7 +91,7 @@ public class StepFunction<T extends ImpurityMeasure<T>> {
             }
         }
 
-        return new StepFunction(resX, resY, clazz);
+        return new StepFunction<>(resX, resY);
     }
 
     public double[] getX() {

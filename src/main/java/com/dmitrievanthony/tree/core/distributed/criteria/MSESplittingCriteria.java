@@ -54,7 +54,7 @@ public class MSESplittingCriteria implements SplittingCriteria<MSEImpurityMeasur
                 y[i] = new MSEImpurityMeasure(ly, lyy, i, ry, ryy, data.length - i);
             }
 
-            res[col] = new StepFunction(x, y, MSEImpurityMeasure.class);
+            res[col] = new StepFunction(x, y);
         }
 
         return res;

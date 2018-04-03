@@ -20,25 +20,25 @@ package com.dmitrievanthony.tree.core.distributed.criteria;
 import com.dmitrievanthony.tree.utils.Utils;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StepFunctionCompressor {
 
-    @SuppressWarnings("unchecked")
-    public static <T extends ImpurityMeasure<T>> StepFunction<T> compress(StepFunction<T> function, Class<T> clazz) {
+    public static <T extends ImpurityMeasure<T>> StepFunction<T> compress(StepFunction<T> function) {
         double[] x = function.getX();
         T[] y = function.getY();
 
         Utils.quickSort(x, y);
 
-        List<StepFunctionPoint> points = new ArrayList<>();
+        List<StepFunctionPoint<T>> points = new ArrayList<>();
         for (int i = 0; i < x.length; i++)
             points.add(new StepFunctionPoint<>(x[i], y[i]));
 
         points = compress(points);
 
         double[] resX = new double[points.size()];
-        T[] resY = (T[])Array.newInstance(clazz, points.size());
+        T[] resY = Arrays.copyOf(y, points.size());
 
         for (int i = 0; i < points.size(); i++) {
             StepFunctionPoint<T> pnt = points.get(i);
@@ -46,10 +46,10 @@ public class StepFunctionCompressor {
             resY[i] = pnt.y;
         }
 
-        return new StepFunction<>(resX, resY, clazz);
+        return new StepFunction<>(resX, resY);
     }
 
-    private static List<StepFunctionPoint> compress(List<StepFunctionPoint> points) {
+    private static <T extends ImpurityMeasure<T>> List<StepFunctionPoint<T>> compress(List<StepFunctionPoint<T>> points) {
 //        List<StepFunctionPoint> res = new ArrayList<>();
 //
 //
