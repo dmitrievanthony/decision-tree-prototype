@@ -29,41 +29,42 @@ import java.util.function.Predicate;
 
 public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
 
-    private final SplittingCriteria<T> criterionCalculator;
-
     private final int maxDeep;
 
     private final double minImpurityDecrease;
 
-    public DistributedDecisionTree(SplittingCriteria<T> criterionCalculator, int maxDeep, double minImpurityDecrease) {
-        this.criterionCalculator = criterionCalculator;
+    public DistributedDecisionTree(int maxDeep, double minImpurityDecrease) {
         this.maxDeep = maxDeep;
         this.minImpurityDecrease = minImpurityDecrease;
     }
 
     public Node fit(Dataset dataset) {
-        return fit(dataset, e -> true, 0);
+        SplittingCriteria<T> splittingCriteria = getSplittingCriteria(dataset);
+
+        return fit(dataset, e -> true, 0, splittingCriteria);
     }
 
     abstract LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred);
 
-    private Node fit(Dataset dataset, Predicate<double[]> pred, int deep) {
+    abstract SplittingCriteria<T> getSplittingCriteria(Dataset dataset);
+
+    private Node fit(Dataset dataset, Predicate<double[]> pred, int deep, SplittingCriteria<T> splittingCriteria) {
         if (deep >= maxDeep)
             return createLeafNode(dataset, pred);
 
-        StepFunction<T>[] criterionFunctions = calculateCriterionForAllColumns(dataset, pred);
+        StepFunction<T>[] criterionFunctions = calculateCriterionForAllColumns(dataset, pred, splittingCriteria);
 
         SplitPoint splitPnt = calculateBestSplitPoint(criterionFunctions);
 
         return new ConditionalNode(
             splitPnt.col,
             splitPnt.threshold,
-            fit(dataset, updatePredicateForThenNode(pred, splitPnt), deep + 1),
-            fit(dataset, updatePredicateForElseNode(pred, splitPnt), deep + 1)
+            fit(dataset, updatePredicateForThenNode(pred, splitPnt), deep + 1, splittingCriteria),
+            fit(dataset, updatePredicateForElseNode(pred, splitPnt), deep + 1, splittingCriteria)
         );
     }
 
-    private StepFunction<T>[] calculateCriterionForAllColumns(Dataset dataset, Predicate<double[]> pred) {
+    private StepFunction<T>[] calculateCriterionForAllColumns(Dataset dataset, Predicate<double[]> pred, SplittingCriteria<T> splittingCriteria) {
         return dataset.compute(
             part -> {
                 double[][] allFeatures = part.getFeatures();
@@ -86,7 +87,7 @@ public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
                         }
                     }
 
-                    return criterionCalculator.calculate(nodeFeatures, nodeLabels);
+                    return splittingCriteria.calculate(nodeFeatures, nodeLabels);
                 }
 
                 return null;

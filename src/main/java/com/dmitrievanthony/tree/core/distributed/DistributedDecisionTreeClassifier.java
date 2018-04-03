@@ -20,6 +20,7 @@ package com.dmitrievanthony.tree.core.distributed;
 import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.distributed.criteria.GiniImpurityMeasure;
 import com.dmitrievanthony.tree.core.distributed.criteria.GiniSplittingCriteria;
+import com.dmitrievanthony.tree.core.distributed.criteria.SplittingCriteria;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,10 +29,7 @@ import java.util.function.Predicate;
 public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<GiniImpurityMeasure> {
 
     public DistributedDecisionTreeClassifier(int maxDeep, double minImpurityDecrease) {
-        super(new GiniSplittingCriteria(new HashMap<Double, Integer>() {{
-            put(1.0, 1);
-            put(0.0, 0);
-        }}), maxDeep, minImpurityDecrease);
+        super(maxDeep, minImpurityDecrease);
     }
 
     @Override LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred) {
@@ -65,6 +63,13 @@ public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<G
         }
 
         return new LeafNode(bestVal);
+    }
+
+    @Override SplittingCriteria<GiniImpurityMeasure> getSplittingCriteria(Dataset dataset) {
+        return new GiniSplittingCriteria(new HashMap<Double, Integer>() {{
+            put(1.0, 1);
+            put(0.0, 0);
+        }});
     }
 
     private Map<Double, Integer> reduce(Map<Double, Integer> a, Map<Double, Integer> b) {
