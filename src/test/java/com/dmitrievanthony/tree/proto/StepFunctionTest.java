@@ -17,8 +17,8 @@
 
 package com.dmitrievanthony.tree.proto;
 
-import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
-import com.dmitrievanthony.tree.core.distributed.util.StepFunction;
+import com.dmitrievanthony.tree.core.distributed.criteria.ImpurityMeasure;
+import com.dmitrievanthony.tree.core.distributed.criteria.StepFunction;
 import java.util.Objects;
 import org.junit.Test;
 

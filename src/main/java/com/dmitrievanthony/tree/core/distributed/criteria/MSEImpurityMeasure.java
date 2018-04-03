@@ -17,9 +17,7 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
-import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
-
-public class MSE implements ImpurityMeasure<MSE> {
+public class MSEImpurityMeasure implements ImpurityMeasure<MSEImpurityMeasure> {
 
     private final double leftY;
 
@@ -33,7 +31,7 @@ public class MSE implements ImpurityMeasure<MSE> {
 
     private final long rightCnt;
 
-    public MSE(double leftY, double leftY2, long leftCnt, double rightY, double rightY2, long rightCnt) {
+    public MSEImpurityMeasure(double leftY, double leftY2, long leftCnt, double rightY, double rightY2, long rightCnt) {
         this.leftY = leftY;
         this.leftY2 = leftY2;
         this.leftCnt = leftCnt;
@@ -49,8 +47,8 @@ public class MSE implements ImpurityMeasure<MSE> {
         return left + right;
     }
 
-    @Override public MSE add(MSE b) {
-        return new MSE(
+    @Override public MSEImpurityMeasure add(MSEImpurityMeasure b) {
+        return new MSEImpurityMeasure(
             leftY + b.leftY,
             leftY2 + b.leftY2,
             leftCnt + b.leftCnt,
@@ -60,8 +58,8 @@ public class MSE implements ImpurityMeasure<MSE> {
         );
     }
 
-    @Override public MSE subtract(MSE b) {
-        return new MSE(
+    @Override public MSEImpurityMeasure subtract(MSEImpurityMeasure b) {
+        return new MSEImpurityMeasure(
             leftY - b.leftY,
             leftY2 - b.leftY2,
             leftCnt - b.leftCnt,

@@ -1,4 +1,4 @@
-package com.dmitrievanthony.tree.core.distributed.util;
+package com.dmitrievanthony.tree.core.distributed.criteria;
 
 public interface ImpurityMeasure<T extends ImpurityMeasure<T>> extends Comparable<T> {
 

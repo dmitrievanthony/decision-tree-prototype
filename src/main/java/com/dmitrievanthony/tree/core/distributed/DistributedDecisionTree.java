@@ -22,8 +22,8 @@ import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.Node;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import com.dmitrievanthony.tree.core.distributed.criteria.SplittingCriteria;
-import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
-import com.dmitrievanthony.tree.core.distributed.util.StepFunction;
+import com.dmitrievanthony.tree.core.distributed.criteria.ImpurityMeasure;
+import com.dmitrievanthony.tree.core.distributed.criteria.StepFunction;
 import java.util.Arrays;
 import java.util.function.Predicate;
 

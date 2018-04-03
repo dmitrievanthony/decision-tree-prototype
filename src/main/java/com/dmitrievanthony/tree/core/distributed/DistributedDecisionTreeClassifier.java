@@ -18,14 +18,14 @@
 package com.dmitrievanthony.tree.core.distributed;
 
 import com.dmitrievanthony.tree.core.LeafNode;
-import com.dmitrievanthony.tree.core.distributed.criteria.Gini;
+import com.dmitrievanthony.tree.core.distributed.criteria.GiniImpurityMeasure;
 import com.dmitrievanthony.tree.core.distributed.criteria.GiniSplittingCriteria;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<Gini> {
+public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<GiniImpurityMeasure> {
 
     public DistributedDecisionTreeClassifier(int maxDeep, double minImpurityDecrease) {
         super(new GiniSplittingCriteria(new HashMap<Double, Integer>() {{

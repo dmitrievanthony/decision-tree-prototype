@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.dmitrievanthony.tree.core.distributed.util;
+package com.dmitrievanthony.tree.core.distributed.criteria;
 
 import com.dmitrievanthony.tree.utils.Utils;
 import java.lang.reflect.Array;

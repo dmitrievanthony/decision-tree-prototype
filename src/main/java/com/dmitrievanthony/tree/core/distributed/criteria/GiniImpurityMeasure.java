@@ -17,15 +17,13 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
-import com.dmitrievanthony.tree.core.distributed.util.ImpurityMeasure;
-
-public class Gini implements ImpurityMeasure<Gini> {
+public class GiniImpurityMeasure implements ImpurityMeasure<GiniImpurityMeasure> {
 
     private final long[] left;
 
     private final long[] right;
 
-    public Gini(long[] left, long[] right) {
+    public GiniImpurityMeasure(long[] left, long[] right) {
         this.left = left;
         this.right = right;
     }
@@ -50,7 +48,7 @@ public class Gini implements ImpurityMeasure<Gini> {
         return leftRes / leftCnt + rightRes / rightCnt;
     }
 
-    @Override public Gini add(Gini b) {
+    @Override public GiniImpurityMeasure add(GiniImpurityMeasure b) {
         if (left.length != right.length || left.length != b.left.length || left.length != b.right.length)
             throw new IllegalStateException();
 
@@ -62,10 +60,10 @@ public class Gini implements ImpurityMeasure<Gini> {
             rightRes[i] = right[i] + b.right[i];
         }
 
-        return new Gini(leftRes, rightRes);
+        return new GiniImpurityMeasure(leftRes, rightRes);
     }
 
-    @Override public Gini subtract(Gini b) {
+    @Override public GiniImpurityMeasure subtract(GiniImpurityMeasure b) {
         if (left.length != right.length || left.length != b.left.length || left.length != b.right.length)
             throw new IllegalStateException();
 
@@ -77,6 +75,6 @@ public class Gini implements ImpurityMeasure<Gini> {
             rightRes[i] = right[i] - b.right[i];
         }
 
-        return new Gini(leftRes, rightRes);
+        return new GiniImpurityMeasure(leftRes, rightRes);
     }
 }
