@@ -45,8 +45,8 @@ public class GiniImpurityMeasureCalculator implements ImpurityMeasureCalculator<
         for (int col = 0; col < res.length; col++) {
             Utils.quickSort(data, labels, col);
 
-            double[] x = new double[data.length];
-            GiniImpurityMeasure[] y = new GiniImpurityMeasure[data.length];
+            double[] x = new double[data.length + 1];
+            GiniImpurityMeasure[] y = new GiniImpurityMeasure[data.length + 1];
 
             int xPtr = 0, yPtr = 0;
 

@@ -32,7 +32,7 @@ public class MSESplittingCriteriaTest {
         SplitPoint pnt = criteria.findBestSplit(labels);
 
         assertEquals(3, pnt.getLeftSize());
-        assertEquals(0.0, pnt.getCriteriaVal(), 1e-6);
+        assertEquals(0.0, pnt.getImpurityVal(), 1e-6);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class MSESplittingCriteriaTest {
         SplitPoint pnt = criteria.findBestSplit(labels);
 
         assertEquals(3, pnt.getLeftSize());
-        assertEquals(0.25, pnt.getCriteriaVal(), 1e-6);
+        assertEquals(0.25, pnt.getImpurityVal(), 1e-6);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class MSESplittingCriteriaTest {
         SplitPoint pnt = criteria.findBestSplit(labels);
 
         assertEquals(0, pnt.getLeftSize());
-        assertEquals(0, pnt.getCriteriaVal(), 1e-6);
+        assertEquals(0, pnt.getImpurityVal(), 1e-6);
     }
 
     @Test

@@ -60,11 +60,11 @@ public class GiniImpurityMeasure implements ImpurityMeasure<GiniImpurityMeasure>
             rightCnt += e;
         }
 
-        int totalImpurity = 0;
+        double totalImpurity = 0;
         totalImpurity += leftCnt > 0 ? leftImpurity / leftCnt: 0;
         totalImpurity += rightCnt > 0 ? rightImpurity / rightCnt : 0;
 
-        return totalImpurity;
+        return -totalImpurity;
     }
 
     /** {@inheritDoc} */

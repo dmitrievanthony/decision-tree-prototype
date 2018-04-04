@@ -90,14 +90,14 @@ public abstract class LocalDecisionTree {
 
         Utils.quickSort(features, labels, bestCol);
 
+        if (bestSplitPnt.getLeftSize() == 0)
+            return createLeafNode(labels);
+
         double[][] leftFeatures = Arrays.copyOfRange(features, 0, bestSplitPnt.getLeftSize());
         double[][] rightFeatures = Arrays.copyOfRange(features, bestSplitPnt.getLeftSize(), features.length);
 
         double[] leftLabels = Arrays.copyOfRange(labels, 0, bestSplitPnt.getLeftSize());
         double[] rightLabels = Arrays.copyOfRange(labels, bestSplitPnt.getLeftSize(), labels.length);
-
-        if (leftFeatures.length == 0)
-            return createLeafNode(labels);
 
         return new ConditionalNode(
             bestCol,

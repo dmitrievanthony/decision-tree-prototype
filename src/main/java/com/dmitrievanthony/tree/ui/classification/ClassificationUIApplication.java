@@ -155,6 +155,7 @@ public abstract class ClassificationUIApplication extends JPanel implements Cont
 
     @Override public void doOnClean() {
         points.clear();
+        update();
     }
 
     private static class Rectangle {
