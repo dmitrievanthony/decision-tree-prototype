@@ -2,10 +2,6 @@
 
 Prototype of decision tree regression and classification algorithms.
 
-# Regression
-
-![regression](regression.gif "Regression")
-
-# Classification
-
-![classification](classification.gif "Classification")
+| Regression | Classification |
+|------------|----------------|
+| ![regression](regression.gif "Regression") | ![classification](classification.gif "Classification") |
