@@ -23,7 +23,9 @@ import com.dmitrievanthony.tree.core.distributed.criteria.GiniImpurityMeasureCal
 import com.dmitrievanthony.tree.core.distributed.criteria.ImpurityMeasureCalculator;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -77,10 +79,30 @@ public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<G
 
     /** {@inheritDoc} */
     @Override ImpurityMeasureCalculator<GiniImpurityMeasure> getImpurityMeasureCalculator(Dataset dataset) {
-        return new GiniImpurityMeasureCalculator(new HashMap<Double, Integer>() {{
-            put(1.0, 1);
-            put(0.0, 0);
-        }});
+        Set<Double> labels = dataset.compute(part -> {
+            Set<Double> list = new HashSet<>();
+
+            for (double lb : part.getLabels())
+                list.add(lb);
+
+            return list;
+        }, (a, b) -> {
+            if (a == null)
+                return b;
+            else if (b == null)
+                return a;
+            else {
+                a.addAll(b);
+                return a;
+            }
+        });
+
+        Map<Double, Integer> encoder = new HashMap<>();
+        int idx = 0;
+        for (Double lb : labels)
+            encoder.put(lb, idx++);
+
+        return new GiniImpurityMeasureCalculator(encoder);
     }
 
     private Map<Double, Integer> reduce(Map<Double, Integer> a, Map<Double, Integer> b) {
