@@ -21,7 +21,7 @@ import com.dmitrievanthony.tree.core.ConditionalNode;
 import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.Node;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
-import com.dmitrievanthony.tree.core.distributed.criteria.SplittingCriteria;
+import com.dmitrievanthony.tree.core.distributed.criteria.ImpurityMeasureCalculator;
 import com.dmitrievanthony.tree.core.distributed.criteria.ImpurityMeasure;
 import com.dmitrievanthony.tree.core.distributed.criteria.StepFunction;
 import java.util.Arrays;
@@ -39,16 +39,16 @@ public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
     }
 
     public Node fit(Dataset dataset) {
-        SplittingCriteria<T> splittingCriteria = getSplittingCriteria(dataset);
+        ImpurityMeasureCalculator<T> splittingCriteria = getSplittingCriteria(dataset);
 
         return fit(dataset, e -> true, 0, splittingCriteria);
     }
 
     abstract LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred);
 
-    abstract SplittingCriteria<T> getSplittingCriteria(Dataset dataset);
+    abstract ImpurityMeasureCalculator<T> getSplittingCriteria(Dataset dataset);
 
-    private Node fit(Dataset dataset, Predicate<double[]> pred, int deep, SplittingCriteria<T> splittingCriteria) {
+    private Node fit(Dataset dataset, Predicate<double[]> pred, int deep, ImpurityMeasureCalculator<T> splittingCriteria) {
         if (deep >= maxDeep)
             return createLeafNode(dataset, pred);
 
@@ -64,7 +64,7 @@ public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
         );
     }
 
-    private StepFunction<T>[] calculateCriterionForAllColumns(Dataset dataset, Predicate<double[]> pred, SplittingCriteria<T> splittingCriteria) {
+    private StepFunction<T>[] calculateCriterionForAllColumns(Dataset dataset, Predicate<double[]> pred, ImpurityMeasureCalculator<T> splittingCriteria) {
         return dataset.compute(
             part -> {
                 double[][] allFeatures = part.getFeatures();

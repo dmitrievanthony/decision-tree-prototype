@@ -19,8 +19,8 @@ package com.dmitrievanthony.tree.core.distributed;
 
 import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.distributed.criteria.MSEImpurityMeasure;
-import com.dmitrievanthony.tree.core.distributed.criteria.MSESplittingCriteria;
-import com.dmitrievanthony.tree.core.distributed.criteria.SplittingCriteria;
+import com.dmitrievanthony.tree.core.distributed.criteria.MSEImpurityMeasureCalculator;
+import com.dmitrievanthony.tree.core.distributed.criteria.ImpurityMeasureCalculator;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import java.util.function.Predicate;
 
@@ -53,8 +53,8 @@ public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MS
         return new LeafNode(aa[0]);
     }
 
-    @Override SplittingCriteria<MSEImpurityMeasure> getSplittingCriteria(Dataset dataset) {
-        return new MSESplittingCriteria();
+    @Override ImpurityMeasureCalculator<MSEImpurityMeasure> getSplittingCriteria(Dataset dataset) {
+        return new MSEImpurityMeasureCalculator();
     }
 
     private double[] reduce(double[] a, double[] b) {

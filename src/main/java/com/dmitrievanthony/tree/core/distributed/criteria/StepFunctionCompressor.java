@@ -17,87 +17,34 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
-import com.dmitrievanthony.tree.utils.Utils;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-public class StepFunctionCompressor {
+/**
+ * Base interface for step function compressors which reduces step function size.
+ *
+ * @param <T> Type of step function value.
+ */
+public interface StepFunctionCompressor<T extends ImpurityMeasure<T>> {
+    /**
+     * Compresses the given step function.
+     *
+     * @param function Step function.
+     * @return Compressed step function.
+     */
+    public StepFunction<T> compress(StepFunction<T> function);
 
-    public static <T extends ImpurityMeasure<T>> StepFunction<T> compress(StepFunction<T> function) {
-        double[] x = function.getX();
-        T[] y = function.getY();
+    /**
+     * Compresses every step function in the given array.
+     *
+     * @param functions Array of step functions.
+     * @return Arrays of compressed step function.
+     */
+    default public StepFunction<T>[] compress(StepFunction<T>[] functions) {
+        StepFunction<T>[] res = Arrays.copyOf(functions, functions.length);
 
-        Utils.quickSort(x, y);
+        for (int i = 0; i < res.length; i++)
+            res[i] = compress(res[i]);
 
-        List<StepFunctionPoint<T>> points = new ArrayList<>();
-        for (int i = 0; i < x.length; i++)
-            points.add(new StepFunctionPoint<>(x[i], y[i]));
-
-        points = compress(points);
-
-        double[] resX = new double[points.size()];
-        T[] resY = Arrays.copyOf(y, points.size());
-
-        for (int i = 0; i < points.size(); i++) {
-            StepFunctionPoint<T> pnt = points.get(i);
-            resX[i] = pnt.x;
-            resY[i] = pnt.y;
-        }
-
-        return new StepFunction<>(resX, resY);
-    }
-
-    private static <T extends ImpurityMeasure<T>> List<StepFunctionPoint<T>> compress(List<StepFunctionPoint<T>> points) {
-//        List<StepFunctionPoint> res = new ArrayList<>();
-//
-//
-//        double[] min = new double[6];
-//        double[] max = new double[6];
-//        for (StepFunctionPoint pnt : points) {
-//            for (int i = 0; i < pnt.y.length; i++) {
-//                double y = pnt.y[i];
-//                if (y < min[i])
-//                    min[i] = y;
-//                if (y > max[i])
-//                    max[i] = y;
-//            }
-//        }
-//
-//        StepFunctionPoint prevPnt = null;
-//        for (StepFunctionPoint pnt : points) {
-//            boolean skip = false;
-//            if (prevPnt != null) {
-//                skip = true;
-//                for (int i = 0; i < max.length; i++) {
-//                    if ((1.0 * Math.abs(pnt.y[i] - prevPnt.y[i]) / (max[i] - min[i])) > 0.1) {
-//                        skip = false;
-//                        break;
-//                    }
-//                }
-//            }
-//
-//            if (!skip) {
-//                res.add(pnt);
-//                prevPnt = pnt;
-//            }
-//        }
-//
-//        System.out.println("Compress : " + 1.0 * points.size() / res.size());
-
-        return points;
-    }
-
-    private static class StepFunctionPoint<T extends ImpurityMeasure<T>> {
-
-        private final double x;
-
-        private final T y;
-
-        public StepFunctionPoint(double x, T y) {
-            this.x = x;
-            this.y = y;
-        }
+        return res;
     }
 }

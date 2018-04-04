@@ -17,20 +17,39 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
+/**
+ * Mean squared error (variance) impurity measure which is calculated the following way:
+ * {@code \frac{1}{L}\sum_{i=0}^{n}(y_i - \mu)^2}.
+ */
 public class MSEImpurityMeasure implements ImpurityMeasure<MSEImpurityMeasure> {
-
+    /** Sum of all elements in the left part. */
     private final double leftY;
 
+    /** Sum of all squared elements in the left part. */
     private final double leftY2;
 
+    /** Number of elements in the left part. */
     private final long leftCnt;
 
+    /** Sum of all elements in the right part. */
     private final double rightY;
 
+    /** Sum of all squared elements in the right part. */
     private final double rightY2;
 
+    /** Number of elements in the right part. */
     private final long rightCnt;
 
+    /**
+     * Constructs a new instance of mean squared error (variance) impurity measure.
+     *
+     * @param leftY Sum of all elements in the left part.
+     * @param leftY2 Sum of all squared elements in the left part.
+     * @param leftCnt Number of elements in the left part.
+     * @param rightY Sum of all elements in the right part.
+     * @param rightY2 Sum of all squared elements in the right part.
+     * @param rightCnt Number of elements in the right part.
+     */
     public MSEImpurityMeasure(double leftY, double leftY2, long leftCnt, double rightY, double rightY2, long rightCnt) {
         this.leftY = leftY;
         this.leftY2 = leftY2;
@@ -40,13 +59,20 @@ public class MSEImpurityMeasure implements ImpurityMeasure<MSEImpurityMeasure> {
         this.rightCnt = rightCnt;
     }
 
+    /** {@inheritDoc} */
     @Override public double impurity() {
-        double left = leftY2 - 2.0 * leftY / leftCnt * leftY + Math.pow(leftY / leftCnt, 2) * leftCnt;
-        double right = rightY2 - 2.0 * rightY / rightCnt * rightY + Math.pow(rightY / rightCnt, 2) * rightCnt;
+        double impurity = 0;
 
-        return left + right;
+        if (leftCnt > 0)
+            impurity += leftY2 - 2.0 * leftY / leftCnt * leftY + Math.pow(leftY / leftCnt, 2) * leftCnt;
+
+        if (rightCnt > 0)
+            impurity += rightY2 - 2.0 * rightY / rightCnt * rightY + Math.pow(rightY / rightCnt, 2) * rightCnt;
+
+        return impurity;
     }
 
+    /** {@inheritDoc} */
     @Override public MSEImpurityMeasure add(MSEImpurityMeasure b) {
         return new MSEImpurityMeasure(
             leftY + b.leftY,
@@ -58,6 +84,7 @@ public class MSEImpurityMeasure implements ImpurityMeasure<MSEImpurityMeasure> {
         );
     }
 
+    /** {@inheritDoc} */
     @Override public MSEImpurityMeasure subtract(MSEImpurityMeasure b) {
         return new MSEImpurityMeasure(
             leftY - b.leftY,

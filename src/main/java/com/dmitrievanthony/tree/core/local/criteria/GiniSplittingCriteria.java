@@ -20,6 +20,10 @@ package com.dmitrievanthony.tree.core.local.criteria;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Splitting criteria used Gini impurity measure which is calculated the following way:
+ * {@code \frac{1}{L}\sum_{i=0}^{n}l^2 + \frac{1}{R}\sum_{i=0}^{n}r^2}.
+ */
 public class GiniSplittingCriteria implements SplittingCriteria {
 
     @Override public SplitPoint findBestSplit(double[] labels) {

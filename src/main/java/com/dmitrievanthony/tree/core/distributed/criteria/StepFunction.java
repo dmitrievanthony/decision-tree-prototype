@@ -18,86 +18,121 @@
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
 import com.dmitrievanthony.tree.utils.Utils;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
+/**
+ * Step function described by {@code x} and {@code y} points.
+ *
+ * @param <T>
+ */
 public class StepFunction<T extends ImpurityMeasure<T>> {
-
+    /** Argument of every steps start. Should be ascendingly sorted all the time. */
     private final double[] x;
 
+    /** Value of every step. */
     private final T[] y;
 
+    /**
+     * Constructs a new instance of step function.
+     *
+     * @param x Argument of every steps start.
+     * @param y Value of every step.
+     */
     public StepFunction(double[] x, T[] y) {
+        if (x.length != y.length)
+            throw new IllegalArgumentException("Argument and value arrays have to be the same length");
+
         this.x = x;
         this.y = y;
+
+        Utils.quickSort(x, y);
     }
 
+    /**
+     * Adds the given step function to this.
+     *
+     * @param b Another step function.
+     * @return Sum of this and the given function.
+     */
     public StepFunction<T> add(StepFunction<T> b) {
-        Utils.quickSort(x, y);
-        Utils.quickSort(b.x, b.y);
+        int resSize = 0, leftPtr = 0, rightPtr = 0;
+        double previousPnt = 0;
 
-        int size = 0;
-
-        int l = 0, r = 0;
-        double last = 0;
-        while (l < x.length || r < b.x.length) {
-            if (r >= b.x.length || (l < x.length && x[l] < b.x[r])) {
-                if (size == 0 || x[l] != last) {
-                    last = x[l];
-                    size++;
+        while (leftPtr < x.length || rightPtr < b.x.length) {
+            if (rightPtr >= b.x.length || (leftPtr < x.length && x[leftPtr] < b.x[rightPtr])) {
+                if (resSize == 0 || x[leftPtr] != previousPnt) {
+                    previousPnt = x[leftPtr];
+                    resSize++;
                 }
-                l++;
+
+                leftPtr++;
             }
             else {
-                if (size == 0 || b.x[r] != last) {
-                    last = b.x[r];
-                    size++;
+                if (resSize == 0 || b.x[rightPtr] != previousPnt) {
+                    previousPnt = b.x[rightPtr];
+                    resSize++;
                 }
-                r++;
+
+                rightPtr++;
             }
         }
 
-        double[] resX = new double[size];
-        T[] resY = Arrays.copyOf(y, size);
+        double[] resX = new double[resSize];
+        T[] resY = Arrays.copyOf(y, resSize);
 
-        l = 0;
-        r = 0;
-        for (int i = 0; l < x.length || r < b.x.length; i++) {
-            if (r >= b.x.length || (l < x.length && x[l] < b.x[r])) {
-                boolean override = i > 0 && x[l] == resX[i - 1];
+        leftPtr = 0;
+        rightPtr = 0;
+
+        for (int i = 0; leftPtr < x.length || rightPtr < b.x.length; i++) {
+            if (rightPtr >= b.x.length || (leftPtr < x.length && x[leftPtr] < b.x[rightPtr])) {
+                boolean override = i > 0 && x[leftPtr] == resX[i - 1];
                 int target = override ? i - 1 : i;
 
                 resY[target] = override ? resY[target] : null;
                 resY[target] = i > 0 ? resY[i - 1] : null;
-                resY[target] = resY[target] == null ? y[l] : resY[target].add(y[l]);
-                if (l > 0)
-                    resY[target] = resY[target].subtract(y[l - 1]);
+                resY[target] = resY[target] == null ? y[leftPtr] : resY[target].add(y[leftPtr]);
 
-                resX[target] = x[l];
+                if (leftPtr > 0)
+                    resY[target] = resY[target].subtract(y[leftPtr - 1]);
+
+                resX[target] = x[leftPtr];
                 i = target;
-                l++;
+                leftPtr++;
             }
             else {
-                boolean override = i > 0 && b.x[r] == resX[i - 1];
+                boolean override = i > 0 && b.x[rightPtr] == resX[i - 1];
                 int target = override ? i - 1 : i;
+
                 resY[target] = override ? resY[target] : null;
                 resY[target] = i > 0 ? resY[i - 1] : null;
-                resY[target] = resY[target] == null ? b.y[r] : resY[target].add(y[r]);
-                if (r > 0)
-                    resY[target] = resY[target].subtract(b.y[r - 1]);
-                resX[target] = b.x[r];
+                resY[target] = resY[target] == null ? b.y[rightPtr] : resY[target].add(y[rightPtr]);
+
+                if (rightPtr > 0)
+                    resY[target] = resY[target].subtract(b.y[rightPtr - 1]);
+
+                resX[target] = b.x[rightPtr];
                 i = target;
-                r++;
+                rightPtr++;
             }
         }
 
         return new StepFunction<>(resX, resY);
     }
 
+    /**
+     * Returns argument of every steps start.
+     *
+     * @return Argument of every steps start.
+     */
     public double[] getX() {
         return x;
     }
 
+    /**
+     * Returns value of every step.
+     *
+     * @return Value of every step.
+     */
     public T[] getY() {
         return y;
     }

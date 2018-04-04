@@ -19,8 +19,11 @@ package com.dmitrievanthony.tree.core.distributed.criteria;
 
 import com.dmitrievanthony.tree.utils.Utils;
 
-public class MSESplittingCriteria implements SplittingCriteria<MSEImpurityMeasure> {
-
+/**
+ * Meas squared error (variance) impurity measure calculator.
+ */
+public class MSEImpurityMeasureCalculator implements ImpurityMeasureCalculator<MSEImpurityMeasure> {
+    /** {@inheritDoc} */
     @SuppressWarnings("unchecked")
     @Override public StepFunction<MSEImpurityMeasure>[] calculate(double[][] data, double[] labels) {
         StepFunction<MSEImpurityMeasure>[] res = new StepFunction[data[0].length];
@@ -33,28 +36,29 @@ public class MSESplittingCriteria implements SplittingCriteria<MSEImpurityMeasur
 
             x[0] = Double.NEGATIVE_INFINITY;
 
-            for (int i = 0; i <= data.length; i++) {
-                double ly = 0;
-                double lyy = 0;
-                double ry = 0;
-                double ryy = 0;
+            for (int leftSize = 0; leftSize <= data.length; leftSize++) {
+                double leftY = 0;
+                double leftY2 = 0;
+                double rightY = 0;
+                double rightY2 = 0;
 
-                for (int j = 0; j < i; j++) {
-                    ly += labels[j];
-                    lyy += Math.pow(labels[j], 2);
+                for (int i = 0; i < leftSize; i++) {
+                    leftY += labels[i];
+                    leftY2 += Math.pow(labels[i], 2);
                 }
 
-                for (int j = i; j < labels.length; j++) {
-                    ry += labels[j];
-                    ryy += Math.pow(labels[j], 2);
+                for (int i = leftSize; i < labels.length; i++) {
+                    rightY += labels[i];
+                    rightY2 += Math.pow(labels[i], 2);
                 }
 
-                if (i < data.length)
-                    x[i + 1] = data[i][col];
-                y[i] = new MSEImpurityMeasure(ly, lyy, i, ry, ryy, data.length - i);
+                if (leftSize < data.length)
+                    x[leftSize + 1] = data[leftSize][col];
+
+                y[leftSize] = new MSEImpurityMeasure(leftY, leftY2, leftSize, rightY, rightY2, data.length - leftSize);
             }
 
-            res[col] = new StepFunction(x, y);
+            res[col] = new StepFunction<>(x, y);
         }
 
         return res;

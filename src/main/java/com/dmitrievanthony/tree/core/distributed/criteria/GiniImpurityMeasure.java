@@ -17,40 +17,60 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
+/**
+ * Gini impurity measure which is calculated the following way:
+ * {@code \frac{1}{L}\sum_{i=1}^{s}l_i^2 + \frac{1}{R}\sum_{i=s+1}^{n}r_i^2}.
+ */
 public class GiniImpurityMeasure implements ImpurityMeasure<GiniImpurityMeasure> {
-
+    /** Number of elements of each type in the left part. */
     private final long[] left;
 
+    /** Number of elements of each type in the right part. */
     private final long[] right;
 
+    /**
+     * Constructs a new instance of Gini impurity measure.
+     *
+     * @param left Number of elements of each type in the left part.
+     * @param right Number of elements of each type in the right part.
+     */
     public GiniImpurityMeasure(long[] left, long[] right) {
+        if (left.length != right.length)
+            throw new IllegalArgumentException("Left and right parts have to be the same length");
+
         this.left = left;
         this.right = right;
     }
 
+    /** {@inheritDoc} */
     @Override public double impurity() {
         long leftCnt = 0;
         long rightCnt = 0;
 
-        double leftRes = 0;
-        double rightRes = 0;
+        double leftImpurity = 0;
+        double rightImpurity = 0;
 
-        for (int i = 0; i < left.length; i++) {
-            leftRes += Math.pow(left[i], 2);
-            leftCnt += left[i];
+        for (long e : left) {
+            leftImpurity += Math.pow(e, 2);
+            leftCnt += e;
         }
 
-        for (int i = 0; i < right.length; i++) {
-            rightRes += Math.pow(right[i], 2);
-            rightCnt += right[i];
+        for (long e : right) {
+            rightImpurity += Math.pow(e, 2);
+            rightCnt += e;
         }
 
-        return leftRes / leftCnt + rightRes / rightCnt;
+        int totalImpurity = 0;
+        totalImpurity += leftCnt > 0 ? leftImpurity / leftCnt: 0;
+        totalImpurity += rightCnt > 0 ? rightImpurity / rightCnt : 0;
+
+        return totalImpurity;
     }
 
+    /** {@inheritDoc} */
     @Override public GiniImpurityMeasure add(GiniImpurityMeasure b) {
-        if (left.length != right.length || left.length != b.left.length || left.length != b.right.length)
-            throw new IllegalStateException();
+        if (left.length != b.left.length || left.length != b.right.length)
+            throw new IllegalArgumentException("Added measure has to have length " + left.length);
 
         long[] leftRes = new long[left.length];
         long[] rightRes = new long[left.length];
@@ -63,9 +83,10 @@ public class GiniImpurityMeasure implements ImpurityMeasure<GiniImpurityMeasure>
         return new GiniImpurityMeasure(leftRes, rightRes);
     }
 
+    /** {@inheritDoc} */
     @Override public GiniImpurityMeasure subtract(GiniImpurityMeasure b) {
-        if (left.length != right.length || left.length != b.left.length || left.length != b.right.length)
-            throw new IllegalStateException();
+        if (left.length != b.left.length || left.length != b.right.length)
+            throw new IllegalStateException("Subtracted measure has to have length " + left.length);
 
         long[] leftRes = new long[left.length];
         long[] rightRes = new long[left.length];

@@ -17,7 +17,19 @@
 
 package com.dmitrievanthony.tree.core.distributed.criteria;
 
-public interface SplittingCriteria<T extends ImpurityMeasure<T>>{
-
-    public StepFunction<T>[] calculate(double[][] data, double[] labels);
+/**
+ * Base interface for impurity measure calculators that calculates all impurity measures required to find a best split.
+ *
+ * @param <T> Type of impurity measure.
+ */
+public interface ImpurityMeasureCalculator<T extends ImpurityMeasure<T>>{
+    /**
+     * Calculates all impurity measures required required to find a best split and returns them as an array of
+     * {@link StepFunction} (for every column).
+     *
+     * @param features Features.
+     * @param labels Labels.
+     * @return Impurity measures as an array of {@link StepFunction} (for every column).
+     */
+    public StepFunction<T>[] calculate(double[][] features, double[] labels);
 }
