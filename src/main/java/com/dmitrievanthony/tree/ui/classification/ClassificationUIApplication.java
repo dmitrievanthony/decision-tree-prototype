@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
@@ -47,6 +48,7 @@ public abstract class ClassificationUIApplication extends JPanel implements Cont
     private double minImpurityDecrease = 0;
 
     public ClassificationUIApplication() {
+        setBackground(Color.decode("#313335"));
         setBorder(BorderFactory.createEtchedBorder());
 
         setPreferredSize(new Dimension(500, 500));
@@ -82,7 +84,7 @@ public abstract class ClassificationUIApplication extends JPanel implements Cont
 
         if (rectangles != null) {
             for (Rectangle rectangle : rectangles) {
-                g.setColor(Color.decode(rectangle.label == 1 ? "#ffbaba" : "#d7f9d6"));
+                g.setColor(Color.decode(rectangle.label == 1 ? "#7A3C3B" : "#465745"));
                 g.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
             }
         }
@@ -91,7 +93,7 @@ public abstract class ClassificationUIApplication extends JPanel implements Cont
             Point pnt = e.getKey();
             Boolean clazz = e.getValue();
 
-            g.setColor(clazz ? Color.RED : Color.GREEN);
+            g.setColor(clazz ? Color.decode("#FF383C") : Color.decode("#35CD29"));
             g.fillOval(pnt.x - 2, pnt.y - 2, 4, 4);
         }
     }
@@ -155,6 +157,18 @@ public abstract class ClassificationUIApplication extends JPanel implements Cont
 
     @Override public void doOnClean() {
         points.clear();
+        update();
+    }
+
+    @Override public void doOnGenerate() {
+        points.clear();
+
+        Random rnd = new Random();
+        for (int i = 0; i < 100; i++) {
+            Point pnt = new Point(rnd.nextInt(500), rnd.nextInt(500));
+            points.put(pnt, rnd.nextBoolean());
+        }
+
         update();
     }
 

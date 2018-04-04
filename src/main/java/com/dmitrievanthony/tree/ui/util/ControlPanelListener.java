@@ -39,4 +39,9 @@ public interface ControlPanelListener {
      * Do on "clean".
      */
     public void doOnClean();
+
+    /**
+     * Fo on "generate".
+     */
+    public void doOnGenerate();
 }

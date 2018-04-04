@@ -21,6 +21,7 @@ import com.dmitrievanthony.tree.core.Node;
 import com.dmitrievanthony.tree.core.local.LocalDecisionTreeRegressor;
 import com.dmitrievanthony.tree.ui.util.ControlPanel;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
@@ -29,6 +30,7 @@ public class LocalRegressionUIApplication extends RegressionUIApplication {
     public static void main(String... args) {
         JFrame f = new JFrame();
         f.setSize(500, 650);
+        f.setBackground(Color.decode("#2B2B2B"));
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         ControlPanel ctrlPanel = new ControlPanel();

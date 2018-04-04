@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class GiniSplitCalculator implements SplitCalculator {
     /** {@inheritDoc} */
-    @Override public SplitPoint findBestSplit(double[] labels) {
+    @Override public SplitPoint findBestSplit(double[] labels, double minImpurityDecrease) {
         if (labels.length == 0)
             return null;
 
@@ -44,10 +44,12 @@ public class GiniSplitCalculator implements SplitCalculator {
         for (Integer c : right.values())
             res += Math.pow(c, 2);
 
-        double leftVal = 0;
-        double rightVal = res / labels.length;
+        double leftImpurity = 0;
+        double rightImpurity = res / labels.length;
 
-        SplitPoint bestSplitPnt = new SplitPoint(0, leftVal + rightVal);
+        double initImpurity = -rightImpurity;
+
+        SplitPoint bestSplitPnt = null;
 
         for (int leftSize = 1; leftSize < labels.length; leftSize++) {
             double lb = labels[leftSize - 1];
@@ -61,19 +63,21 @@ public class GiniSplitCalculator implements SplitCalculator {
             else
                 right.put(lb, featureCntRight);
 
-            leftVal = leftVal * (leftSize - 1);
-            rightVal = rightVal * (labels.length - leftSize + 1);
+            leftImpurity = leftImpurity * (leftSize - 1);
+            rightImpurity = rightImpurity * (labels.length - leftSize + 1);
 
-            leftVal = leftVal + 2 * featureCntLeft - 1;
-            rightVal = rightVal - 2 * featureCntRight - 1;
+            leftImpurity = leftImpurity + 2 * featureCntLeft - 1;
+            rightImpurity = rightImpurity - 2 * featureCntRight - 1;
 
-            leftVal = leftVal / leftSize;
-            rightVal = rightVal / (labels.length - leftSize);
+            leftImpurity = leftImpurity / leftSize;
+            rightImpurity = rightImpurity / (labels.length - leftSize);
 
-            if (leftVal + rightVal > bestSplitPnt.getImpurityVal())
-                bestSplitPnt = new SplitPoint(leftSize, leftVal + rightVal);
+            double splitImpurity = -(leftImpurity + rightImpurity);
+
+            if ((bestSplitPnt == null || splitImpurity < bestSplitPnt.getImpurityVal()) && (initImpurity - splitImpurity) > minImpurityDecrease)
+                bestSplitPnt = new SplitPoint(leftSize, splitImpurity);
         }
 
-        return new SplitPoint(bestSplitPnt.getLeftSize(), -bestSplitPnt.getImpurityVal());
+        return bestSplitPnt;
     }
 }

@@ -22,6 +22,7 @@ import com.dmitrievanthony.tree.core.distributed.criteria.MSEImpurityMeasure;
 import com.dmitrievanthony.tree.core.distributed.criteria.MSEImpurityMeasureCalculator;
 import com.dmitrievanthony.tree.core.distributed.criteria.ImpurityMeasureCalculator;
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 /**
@@ -42,8 +43,6 @@ public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MS
     /** {@inheritDoc} */
     @Override LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred) {
         double[] aa = dataset.compute(part -> {
-            double[] res = new double[2];
-
             double mean = 0;
             int cnt = 0;
             for (int i = 0; i < part.getLabels().length; i++) {
@@ -52,15 +51,16 @@ public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MS
                     cnt++;
                 }
             }
-            mean = mean / cnt;
 
-            res[0] = mean;
-            res[1] = cnt;
+            if (cnt != 0) {
+                mean = mean / cnt;
+                return new double[]{mean, cnt};
+            }
 
-            return res;
+            return null;
         }, this::reduce);
 
-        return new LeafNode(aa[0]);
+        return aa != null ? new LeafNode(aa[0]) : null;
     }
 
     /** {@inheritDoc} */

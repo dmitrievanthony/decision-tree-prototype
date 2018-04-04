@@ -32,6 +32,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
@@ -46,6 +47,7 @@ public abstract class RegressionUIApplication extends JPanel implements ControlP
     private double minImpurityDecrease = 0;
 
     public RegressionUIApplication() {
+        setBackground(Color.decode("#313335"));
         setBorder(BorderFactory.createEtchedBorder());
 
         setPreferredSize(new Dimension(500, 500));
@@ -70,14 +72,14 @@ public abstract class RegressionUIApplication extends JPanel implements ControlP
             RenderingHints.VALUE_ANTIALIAS_ON);
 
         for (Point pnt : points) {
-            g.setColor(Color.GRAY);
+            g.setColor(Color.decode("#465745"));
             g.fillOval(pnt.x - 2, pnt.y - 2, 4, 4);
         }
 
         if (lines != null) {
             Line prevLine = null;
             for (Line line: lines) {
-                g.setColor(Color.BLUE);
+                g.setColor(Color.decode("#29792A"));
                 if (prevLine != null)
                     g.drawLine(prevLine.x2, prevLine.y2, line.x1, line.y1);
 
@@ -136,6 +138,18 @@ public abstract class RegressionUIApplication extends JPanel implements ControlP
 
     @Override public void doOnClean() {
         points.clear();
+        update();
+    }
+
+    @Override public void doOnGenerate() {
+        points.clear();
+
+        double bias = new Random().nextDouble() * 100;
+        for (int x = 0; x < 500; x+=10) {
+            int y = (int)(Math.sin(x / 100.0 + bias) * 100.0) + 250;
+            points.add(new Point(x, y));
+        }
+
         update();
     }
 

@@ -92,17 +92,20 @@ public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
 
         StepFunction<T>[] criterionFunctions = calculateImpurityForAllColumns(dataset, pred, impurityCalc);
 
+        if (criterionFunctions == null)
+            return createLeafNode(dataset, pred);
+
         SplitPoint splitPnt = calculateBestSplitPoint(criterionFunctions);
 
-        if (splitPnt != null)
-            return new ConditionalNode(
-                splitPnt.col,
-                splitPnt.threshold,
-                split(dataset, updatePredicateForThenNode(pred, splitPnt), deep + 1, impurityCalc),
-                split(dataset, updatePredicateForElseNode(pred, splitPnt), deep + 1, impurityCalc)
-            );
-        else
+        if (splitPnt == null)
             return createLeafNode(dataset, pred);
+
+        return new ConditionalNode(
+            splitPnt.col,
+            splitPnt.threshold,
+            split(dataset, updatePredicateForThenNode(pred, splitPnt), deep + 1, impurityCalc),
+            split(dataset, updatePredicateForElseNode(pred, splitPnt), deep + 1, impurityCalc)
+        );
     }
 
     /**
@@ -162,7 +165,7 @@ public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
             T[] values = criterionFunctionForCol.getY();
 
             for (int leftSize = 1; leftSize < values.length - 1; leftSize++) {
-                if (values[leftSize].compareTo(values[0]) < 0 && (res == null || values[leftSize].compareTo(res.val) < 0))
+                if ((values[0].impurity() - values[leftSize].impurity()) > minImpurityDecrease && (res == null || values[leftSize].compareTo(res.val) < 0))
                     res = new SplitPoint(values[leftSize], col, calculateThreshold(arguments, leftSize));
             }
         }

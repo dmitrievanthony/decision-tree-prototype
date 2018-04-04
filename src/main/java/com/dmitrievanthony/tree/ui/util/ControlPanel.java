@@ -17,6 +17,7 @@
 
 package com.dmitrievanthony.tree.ui.util;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -49,6 +50,7 @@ public class ControlPanel extends JPanel {
      * Constructs a new instance of control panel.
      */
     public ControlPanel() {
+        setBackground(Color.decode("#313335"));
         setBorder(BorderFactory.createEtchedBorder());
 
         setPreferredSize(new Dimension(500, 120));
@@ -65,14 +67,18 @@ public class ControlPanel extends JPanel {
      */
     private JPanel createMaxDeepControlPanel() {
         JPanel panel = new JPanel();
+        panel.setBackground(Color.decode("#313335"));
         panel.setPreferredSize(new Dimension(500, 30));
 
         JLabel lb = new JLabel("Max deep: ");
+        lb.setForeground(Color.decode("#869299"));
         panel.add(lb);
 
         JSlider slider = new JSlider();
         slider.setValue(DEFAULT_MAX_DEEP);
         slider.setMaximum(MAX_MAX_DEEP);
+        slider.setBackground(Color.decode("#313335"));
+        slider.setForeground(Color.decode("#869299"));
         panel.add(slider);
 
         slider.addChangeListener(e -> listeners.forEach(
@@ -89,14 +95,18 @@ public class ControlPanel extends JPanel {
      */
     private JPanel createMinImpurityDecreaseControlPanel() {
         JPanel panel = new JPanel();
+        panel.setBackground(Color.decode("#313335"));
         panel.setPreferredSize(new Dimension(500, 30));
 
         JLabel lb = new JLabel("Min impurity decrease: ");
+        lb.setForeground(Color.decode("#869299"));
         panel.add(lb);
 
         JSlider slider = new JSlider();
         slider.setValue((int) (DEFAULT_MIN_IMPURITY_DECREASE * 100));
         slider.setMaximum((int) (MAX_MIN_IMPURITY_DECREASE * 100));
+        slider.setBackground(Color.decode("#313335"));
+        slider.setForeground(Color.decode("#869299"));
         panel.add(slider);
 
         slider.addChangeListener(e -> listeners.forEach(
@@ -113,12 +123,23 @@ public class ControlPanel extends JPanel {
      */
     private JPanel createCleanControlPanel() {
         JPanel panel = new JPanel();
+        panel.setBackground(Color.decode("#313335"));
         panel.setPreferredSize(new Dimension(500, 30));
 
-        JButton btn = new JButton("Clean");
-        panel.add(btn);
+        JButton cleanBtn = new JButton("Clean");
+        cleanBtn.setBackground(Color.decode("#313335"));
+        cleanBtn.setRolloverEnabled(false);
+        cleanBtn.setForeground(Color.decode("#869299"));
+        panel.add(cleanBtn);
 
-        btn.addActionListener(e -> listeners.forEach(ControlPanelListener::doOnClean));
+        cleanBtn.addActionListener(e -> listeners.forEach(ControlPanelListener::doOnClean));
+
+        JButton generateBtn = new JButton("Generate");
+        generateBtn.setBackground(Color.decode("#313335"));
+        generateBtn.setForeground(Color.decode("#869299"));
+        panel.add(generateBtn);
+
+        generateBtn.addActionListener(e -> listeners.forEach(ControlPanelListener::doOnGenerate));
 
         return panel;
     }

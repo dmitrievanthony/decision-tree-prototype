@@ -23,8 +23,9 @@ package com.dmitrievanthony.tree.core.local.criteria;
  */
 public class MSESplitCalculator implements SplitCalculator {
     /** {@inheritDoc} */
-    @Override public SplitPoint findBestSplit(double[] labels) {
+    @Override public SplitPoint findBestSplit(double[] labels, double minImpurityDecrease) {
         SplitPoint bestSplitPnt = null;
+        double initImpurity = 0;
 
         for (int leftSize = 0; leftSize < labels.length; leftSize++) {
             double sumL = 0;
@@ -45,8 +46,11 @@ public class MSESplitCalculator implements SplitCalculator {
 
             double mse = resR + resL;
 
-            if (bestSplitPnt == null || mse < bestSplitPnt.getImpurityVal())
-                bestSplitPnt = new SplitPoint(leftSize, mse);
+            if (leftSize == 0)
+                initImpurity = mse;
+            else
+                if ((bestSplitPnt == null || mse < bestSplitPnt.getImpurityVal() && (initImpurity - mse) > minImpurityDecrease))
+                    bestSplitPnt = new SplitPoint(leftSize, mse);
         }
 
         return bestSplitPnt;

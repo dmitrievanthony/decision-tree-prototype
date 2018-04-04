@@ -23,6 +23,7 @@ import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import com.dmitrievanthony.tree.core.distributed.dataset.Partition;
 import com.dmitrievanthony.tree.ui.util.ControlPanel;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.JFrame;
@@ -33,6 +34,7 @@ public class DistributedRegressionUIApplication extends RegressionUIApplication 
     public static void main(String... args) {
         JFrame f = new JFrame();
         f.setSize(500, 650);
+        f.setBackground(Color.decode("#2B2B2B"));
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         ControlPanel ctrlPanel = new ControlPanel();

@@ -80,13 +80,16 @@ public abstract class LocalDecisionTree {
         for (int col = 0; col < features[0].length; col++) {
             Utils.quickSort(features, labels, col);
 
-            SplitPoint splitPnt = splitCalc.findBestSplit(labels);
+            SplitPoint splitPnt = splitCalc.findBestSplit(labels, minImpurityDecrease);
 
             if (bestSplitPnt == null || splitPnt.getImpurityVal() < bestSplitPnt.getImpurityVal()) {
                 bestSplitPnt = splitPnt;
                 bestCol = col;
             }
         }
+
+        if (bestSplitPnt == null)
+            return createLeafNode(labels);
 
         Utils.quickSort(features, labels, bestCol);
 

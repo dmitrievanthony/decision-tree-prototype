@@ -25,7 +25,8 @@ public interface SplitCalculator {
      * Returns a split point that minimizes impurity.
      *
      * @param labels Labels.
+     * @param minImpurityDecrease Minimal impurity decrease.
      * @return Split point that minimizes impurity.
      */
-    public SplitPoint findBestSplit(double[] labels);
+    public SplitPoint findBestSplit(double[] labels, double minImpurityDecrease);
 }

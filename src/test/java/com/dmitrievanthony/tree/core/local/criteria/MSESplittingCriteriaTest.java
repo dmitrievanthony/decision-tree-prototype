@@ -29,7 +29,7 @@ public class MSESplittingCriteriaTest {
     public void testFindBestSplitWithTwoClasses() {
         double[] labels = new double[] {0, 0, 0, 1, 1, 1};
 
-        SplitPoint pnt = criteria.findBestSplit(labels);
+        SplitPoint pnt = criteria.findBestSplit(labels, 0);
 
         assertEquals(3, pnt.getLeftSize());
         assertEquals(0.0, pnt.getImpurityVal(), 1e-6);
@@ -39,7 +39,7 @@ public class MSESplittingCriteriaTest {
     public void testFindBestSplitWithThreeClasses() {
         double[] labels = new double[] {0, 0, 0, 1, 1, 2, 1, 2, 2};
 
-        SplitPoint pnt = criteria.findBestSplit(labels);
+        SplitPoint pnt = criteria.findBestSplit(labels, 0);
 
         assertEquals(3, pnt.getLeftSize());
         assertEquals(0.25, pnt.getImpurityVal(), 1e-6);
@@ -49,7 +49,7 @@ public class MSESplittingCriteriaTest {
     public void testFindBestSplitOnSingleElementArray() {
         double[] labels = new double[] {1};
 
-        SplitPoint pnt = criteria.findBestSplit(labels);
+        SplitPoint pnt = criteria.findBestSplit(labels, 0);
 
         assertEquals(0, pnt.getLeftSize());
         assertEquals(0, pnt.getImpurityVal(), 1e-6);
@@ -59,7 +59,7 @@ public class MSESplittingCriteriaTest {
     public void testFindBestSplitOnEmptyArray() {
         double[] labels = new double[] {};
 
-        SplitPoint pnt = criteria.findBestSplit(labels);
+        SplitPoint pnt = criteria.findBestSplit(labels, 0);
 
         assertEquals(null, pnt);
     }
