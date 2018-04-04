@@ -65,7 +65,7 @@ public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<G
         return new LeafNode(bestVal);
     }
 
-    @Override ImpurityMeasureCalculator<GiniImpurityMeasure> getSplittingCriteria(Dataset dataset) {
+    @Override ImpurityMeasureCalculator<GiniImpurityMeasure> getImpurityMeasureCalculator(Dataset dataset) {
         return new GiniImpurityMeasureCalculator(new HashMap<Double, Integer>() {{
             put(1.0, 1);
             put(0.0, 0);

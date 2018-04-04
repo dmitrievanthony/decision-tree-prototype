@@ -53,7 +53,7 @@ public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MS
         return new LeafNode(aa[0]);
     }
 
-    @Override ImpurityMeasureCalculator<MSEImpurityMeasure> getSplittingCriteria(Dataset dataset) {
+    @Override ImpurityMeasureCalculator<MSEImpurityMeasure> getImpurityMeasureCalculator(Dataset dataset) {
         return new MSEImpurityMeasureCalculator();
     }
 

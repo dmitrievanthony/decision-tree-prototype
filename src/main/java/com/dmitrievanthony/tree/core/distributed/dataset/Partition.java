@@ -17,21 +17,33 @@
 
 package com.dmitrievanthony.tree.core.distributed.dataset;
 
+/**
+ * Partition that contains data and used as part of {@link Dataset}.
+ */
 public class Partition {
-
+    /** Features. */
     private final double[][] features;
 
+    /** Labels. */
     private final double[] labels;
 
+    /**
+     * Constructs a new instance of partition.
+     *
+     * @param features Features.
+     * @param labels Labels.
+     */
     public Partition(double[][] features, double[] labels) {
         this.features = features;
         this.labels = labels;
     }
 
+    /** */
     public double[][] getFeatures() {
         return features;
     }
 
+    /** */
     public double[] getLabels() {
         return labels;
     }

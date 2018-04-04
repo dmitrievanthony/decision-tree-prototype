@@ -119,20 +119,12 @@ public class StepFunction<T extends ImpurityMeasure<T>> {
         return new StepFunction<>(resX, resY);
     }
 
-    /**
-     * Returns argument of every steps start.
-     *
-     * @return Argument of every steps start.
-     */
+    /** */
     public double[] getX() {
         return x;
     }
 
-    /**
-     * Returns value of every step.
-     *
-     * @return Value of every step.
-     */
+    /** */
     public T[] getY() {
         return y;
     }

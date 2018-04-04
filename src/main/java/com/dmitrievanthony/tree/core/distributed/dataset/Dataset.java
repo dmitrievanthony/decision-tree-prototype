@@ -21,14 +21,31 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * Dataset that consists of partitions.
+ */
 public class Dataset {
-
+    /** Set of partitions. */
     private final Set<Partition> partitions;
 
+    /**
+     * Constructs a new instance of dataset.
+     *
+     * @param partitions Set of partitions.
+     */
     public Dataset(Set<Partition> partitions) {
         this.partitions = partitions;
     }
 
+    /**
+     * Performs the specified {@code mapper} function of every partition and then reduces results using the specified
+     * {@code reducer} function.
+     *
+     * @param mapper Mapper function applied on every partition.
+     * @param reducer Reducer used to reduce results from different partitions.
+     * @param <R> Type of return value.
+     * @return Result.
+     */
     public <R> R compute(Function<Partition, R> mapper, BiFunction<R, R, R> reducer) {
         R res = null;
 

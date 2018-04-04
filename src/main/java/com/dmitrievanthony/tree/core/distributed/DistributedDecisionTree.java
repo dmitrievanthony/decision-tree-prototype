@@ -27,44 +27,91 @@ import com.dmitrievanthony.tree.core.distributed.criteria.StepFunction;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
+/**
+ * Distributed decision tree trainer that allows to fit trees using row-partitioned dataset.
+ *
+ * @param <T>
+ */
 public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
-
+    /** Max tree deep. */
     private final int maxDeep;
 
+    /** Min impurity decrease. */
     private final double minImpurityDecrease;
 
+    /**
+     * Constructs a new distributed decision tree trainer.
+     *
+     * @param maxDeep Max tree deep.
+     * @param minImpurityDecrease Min impurity decrease.
+     */
     public DistributedDecisionTree(int maxDeep, double minImpurityDecrease) {
         this.maxDeep = maxDeep;
         this.minImpurityDecrease = minImpurityDecrease;
     }
 
+    /**
+     * Builds a new tree trained on the specified dataset.
+     *
+     * @param dataset Dataset.
+     * @return Decision tree.
+     */
     public Node fit(Dataset dataset) {
-        ImpurityMeasureCalculator<T> splittingCriteria = getSplittingCriteria(dataset);
-
-        return fit(dataset, e -> true, 0, splittingCriteria);
+        return split(dataset, e -> true, 0, getImpurityMeasureCalculator(dataset));
     }
 
+    /**
+     * Creates a leaf node.
+     *
+     * @param dataset Dataset.
+     * @param pred Decision tree node predicate.
+     * @return Leaf node.
+     */
     abstract LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred);
 
-    abstract ImpurityMeasureCalculator<T> getSplittingCriteria(Dataset dataset);
+    /**
+     * Returns impurity measure calculator.
+     *
+     * @param dataset Dataset.
+     * @return Impurity measure calculator.
+     */
+    abstract ImpurityMeasureCalculator<T> getImpurityMeasureCalculator(Dataset dataset);
 
-    private Node fit(Dataset dataset, Predicate<double[]> pred, int deep, ImpurityMeasureCalculator<T> splittingCriteria) {
+    /**
+     * Splits the node specified by the given dataset and predicate and returns decision tree node.
+     *
+     * @param dataset Dataset.
+     * @param pred Decision tree node predicate.
+     * @param deep Current tree deep.
+     * @param impurityCalc Impurity measure calculator.
+     * @return Decision tree node.
+     */
+    private Node split(Dataset dataset, Predicate<double[]> pred, int deep, ImpurityMeasureCalculator<T> impurityCalc) {
         if (deep >= maxDeep)
             return createLeafNode(dataset, pred);
 
-        StepFunction<T>[] criterionFunctions = calculateCriterionForAllColumns(dataset, pred, splittingCriteria);
+        StepFunction<T>[] criterionFunctions = calculateImpurityForAllColumns(dataset, pred, impurityCalc);
 
         SplitPoint splitPnt = calculateBestSplitPoint(criterionFunctions);
 
         return new ConditionalNode(
             splitPnt.col,
             splitPnt.threshold,
-            fit(dataset, updatePredicateForThenNode(pred, splitPnt), deep + 1, splittingCriteria),
-            fit(dataset, updatePredicateForElseNode(pred, splitPnt), deep + 1, splittingCriteria)
+            split(dataset, updatePredicateForThenNode(pred, splitPnt), deep + 1, impurityCalc),
+            split(dataset, updatePredicateForElseNode(pred, splitPnt), deep + 1, impurityCalc)
         );
     }
 
-    private StepFunction<T>[] calculateCriterionForAllColumns(Dataset dataset, Predicate<double[]> pred, ImpurityMeasureCalculator<T> splittingCriteria) {
+    /**
+     * Calculates impurity measure functions for all columns for the node specified by the given dataset and predicate.
+     *
+     * @param dataset Dataset.
+     * @param pred Decision tree node predicate.
+     * @param impurityCalc Impurity measure calculator.
+     * @return Array of impurity measure functions for all columns.
+     */
+    private StepFunction<T>[] calculateImpurityForAllColumns(Dataset dataset, Predicate<double[]> pred,
+        ImpurityMeasureCalculator<T> impurityCalc) {
         return dataset.compute(
             part -> {
                 double[][] allFeatures = part.getFeatures();
@@ -87,7 +134,7 @@ public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
                         }
                     }
 
-                    return splittingCriteria.calculate(nodeFeatures, nodeLabels);
+                    return impurityCalc.calculate(nodeFeatures, nodeLabels);
                 }
 
                 return null;
@@ -96,6 +143,12 @@ public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
         );
     }
 
+    /**
+     * Calculates best split point.
+     *
+     * @param criterionFunctions  Array of impurity measure functions for all columns.
+     * @return Best split point.
+     */
     private SplitPoint calculateBestSplitPoint(StepFunction<T>[] criterionFunctions) {
         SplitPoint res = null;
 
@@ -114,6 +167,13 @@ public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
         return res;
     }
 
+    /**
+     * Merges two arrays gotten from two partitions.
+     *
+     * @param a First step function.
+     * @param b Second step function.
+     * @return Merged step function.
+     */
     private StepFunction<T>[] reduce(StepFunction<T>[] a, StepFunction<T>[] b) {
         if (a == null)
             return b;
@@ -127,26 +187,59 @@ public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
         }
     }
 
+    /**
+     * Calculates threshold based on the given step function arguments and split point (specified left size).
+     *
+     * @param arguments Step function arguments.
+     * @param leftSize Split point (left size).
+     * @return Threshold.
+     */
     private double calculateThreshold(double[] arguments, int leftSize) {
         return (arguments[leftSize] + arguments[leftSize + 1]) / 2.0;
     }
 
+    /**
+     * Constructs a new predicate for "then" node based on the parent node predicate and split point.
+     *
+     * @param pred Parent node predicate.
+     * @param splitPnt Split point.
+     * @return Predicate for "then" node.
+     */
     private Predicate<double[]> updatePredicateForThenNode(Predicate<double[]> pred, SplitPoint splitPnt) {
         return pred.and(f -> f[splitPnt.col] > splitPnt.threshold);
     }
 
+    /**
+     * Constructs a new predicate for "else" node based on the parent node predicate and split point.
+     *
+     * @param pred Parent node predicate.
+     * @param splitPnt Split point.
+     * @return Predicate for "else" node.
+     */
     private Predicate<double[]> updatePredicateForElseNode(Predicate<double[]> pred, SplitPoint splitPnt) {
         return pred.and(f -> f[splitPnt.col] <= splitPnt.threshold);
     }
 
+    /**
+     * Util class that represents split point.
+     */
     private class SplitPoint {
-
+        /** Split point impurity measure value. */
         private final T val;
 
+        /** Column. */
         private final int col;
 
+        /** Threshold. */
         private final double threshold;
 
+        /**
+         * Constructs a new instance of split point.
+         *
+         * @param val Split point impurity measure value.
+         * @param col Column.
+         * @param threshold Threshold.
+         */
         public SplitPoint(T val, int col, double threshold) {
             this.val = val;
             this.col = col;
