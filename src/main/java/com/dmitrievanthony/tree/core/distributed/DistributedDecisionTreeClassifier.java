@@ -26,12 +26,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
+/**
+ * Decision tree classifier based on distributed decision tree trainer that allows to fit trees using row-partitioned
+ * dataset.
+ */
 public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<GiniImpurityMeasure> {
-
+    /**
+     * Constructs a new instance of decision tree classifier.
+     *
+     * @param maxDeep Max tree deep.
+     * @param minImpurityDecrease Min impurity decrease.
+     */
     public DistributedDecisionTreeClassifier(int maxDeep, double minImpurityDecrease) {
         super(maxDeep, minImpurityDecrease);
     }
 
+    /** {@inheritDoc} */
     @Override LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred) {
         Map<Double, Integer> cnt = dataset.compute(part -> {
             Map<Double, Integer> map = new HashMap<>();
@@ -65,6 +75,7 @@ public class DistributedDecisionTreeClassifier extends DistributedDecisionTree<G
         return new LeafNode(bestVal);
     }
 
+    /** {@inheritDoc} */
     @Override ImpurityMeasureCalculator<GiniImpurityMeasure> getImpurityMeasureCalculator(Dataset dataset) {
         return new GiniImpurityMeasureCalculator(new HashMap<Double, Integer>() {{
             put(1.0, 1);

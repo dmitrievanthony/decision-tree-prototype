@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 public class MSESplittingCriteriaTest {
 
-    private final MSESplittingCriteria criteria = new MSESplittingCriteria();
+    private final MSESplitCalculator criteria = new MSESplitCalculator();
 
     @Test
     public void testFindBestSplitWithTwoClasses() {

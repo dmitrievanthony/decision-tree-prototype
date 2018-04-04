@@ -21,11 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Splitting criteria used Gini impurity measure which is calculated the following way:
+ * Split calculator used Gini impurity measure which is calculated the following way:
  * {@code \frac{1}{L}\sum_{i=0}^{n}l^2 + \frac{1}{R}\sum_{i=0}^{n}r^2}.
  */
-public class GiniSplittingCriteria implements SplittingCriteria {
-
+public class GiniSplitCalculator implements SplitCalculator {
+    /** {@inheritDoc} */
     @Override public SplitPoint findBestSplit(double[] labels) {
         if (labels.length == 0)
             return null;
@@ -70,10 +70,10 @@ public class GiniSplittingCriteria implements SplittingCriteria {
             leftVal = leftVal / leftSize;
             rightVal = rightVal / (labels.length - leftSize);
 
-            if (leftVal + rightVal > bestSplitPnt.getCriteriaVal())
+            if (leftVal + rightVal > bestSplitPnt.getImpurityVal())
                 bestSplitPnt = new SplitPoint(leftSize, leftVal + rightVal);
         }
 
-        return new SplitPoint(bestSplitPnt.getLeftSize(), -bestSplitPnt.getCriteriaVal());
+        return new SplitPoint(bestSplitPnt.getLeftSize(), -bestSplitPnt.getImpurityVal());
     }
 }

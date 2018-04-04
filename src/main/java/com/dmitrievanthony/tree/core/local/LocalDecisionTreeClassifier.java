@@ -18,24 +18,29 @@
 package com.dmitrievanthony.tree.core.local;
 
 import com.dmitrievanthony.tree.core.LeafNode;
-import com.dmitrievanthony.tree.core.local.criteria.GiniSplittingCriteria;
-import com.dmitrievanthony.tree.core.local.criteria.SplittingCriteria;
+import com.dmitrievanthony.tree.core.local.criteria.GiniSplitCalculator;
+import com.dmitrievanthony.tree.core.local.criteria.SplitCalculator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
+/**
+ * Decision tree classifier based on local decision tree trainer.
+ */
 public class LocalDecisionTreeClassifier extends LocalDecisionTree {
+    /** Default split calculator used for classification. */
+    private static final SplitCalculator defaultSplitCalc = new GiniSplitCalculator();
 
-    private static final double PROBABILITY_THRESHOLD = 0.95;
-
-    private static final int DEEP_THRESHOLD = 100;
-
-    private static final SplittingCriteria defaultSplittingCriteria = new GiniSplittingCriteria();
-
+    /**
+     * Constructs a new instance of local decision tree classifier.
+     *
+     * @param maxDeep Max tree deep.
+     * @param minImpurityDecrease Min impurity decrease.
+     */
     public LocalDecisionTreeClassifier(int maxDeep, double minImpurityDecrease) {
-        super(defaultSplittingCriteria, maxDeep, minImpurityDecrease);
+        super(defaultSplitCalc, maxDeep, minImpurityDecrease);
     }
 
+    /** {@inheritDoc} */
     @Override LeafNode createLeafNode(double[] labels) {
         Map<Double, Integer> cnt = new HashMap<>();
         for (double label : labels) {

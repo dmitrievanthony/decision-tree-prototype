@@ -17,8 +17,12 @@
 
 package com.dmitrievanthony.tree.core.local.criteria;
 
-public class MSESplittingCriteria implements SplittingCriteria {
-
+/**
+ * Split calculator used MSE (variance) impurity measure which is calculated the following way:
+ * {@code \frac{1}{L}\sum_{i=0}^{n}(y_i - \mu)^2}.
+ */
+public class MSESplitCalculator implements SplitCalculator {
+    /** {@inheritDoc} */
     @Override public SplitPoint findBestSplit(double[] labels) {
         SplitPoint bestSplitPnt = null;
 
@@ -41,7 +45,7 @@ public class MSESplittingCriteria implements SplittingCriteria {
 
             double mse = resR + resL;
 
-            if (bestSplitPnt == null || mse < bestSplitPnt.getCriteriaVal())
+            if (bestSplitPnt == null || mse < bestSplitPnt.getImpurityVal())
                 bestSplitPnt = new SplitPoint(leftSize, mse);
         }
 

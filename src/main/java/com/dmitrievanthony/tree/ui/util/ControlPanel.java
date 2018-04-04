@@ -26,18 +26,28 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 
+/**
+ * Control panel used to change hyper parameters and clean the screen.
+ */
 public class ControlPanel extends JPanel {
-
+    /** Default value of the "max deep" selector. */
     private static final int DEFAULT_MAX_DEEP = 2;
 
+    /** Max value of the "max deep" selector. */
     private static final int MAX_MAX_DEEP = 20;
 
+    /** Default value of the "min impurity decrease" selector. */
     private static final double DEFAULT_MIN_IMPURITY_DECREASE = 0;
 
+    /** Max value of the "min impurity decrease" selector. */
     private static final double MAX_MIN_IMPURITY_DECREASE = 10;
 
+    /** Change listeners. */
     private List<ControlPanelListener> listeners = new CopyOnWriteArrayList<>();
 
+    /**
+     * Constructs a new instance of control panel.
+     */
     public ControlPanel() {
         setBorder(BorderFactory.createEtchedBorder());
 
@@ -48,6 +58,11 @@ public class ControlPanel extends JPanel {
         add(createCleanControlPanel());
     }
 
+    /**
+     * Constructs the "max deep" sub-panel.
+     *
+     * @return The "max deep" sub-panel.
+     */
     private JPanel createMaxDeepControlPanel() {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(500, 30));
@@ -67,6 +82,11 @@ public class ControlPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Constructs the "min impurity decrease" sub-panel.
+     *
+     * @return The "min impurity decrease" sub-panel.
+     */
     private JPanel createMinImpurityDecreaseControlPanel() {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(500, 30));
@@ -86,6 +106,11 @@ public class ControlPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Constructs the "clean" sub-panel.
+     *
+     * @return The "clean" sub-panel.
+     */
     private JPanel createCleanControlPanel() {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(500, 30));
@@ -98,10 +123,12 @@ public class ControlPanel extends JPanel {
         return panel;
     }
 
+    /** */
     public void addListener(ControlPanelListener lsnr) {
         listeners.add(lsnr);
     }
 
+    /** */
     public void removeListener(ControlPanelListener lsnr) {
         listeners.remove(lsnr);
     }

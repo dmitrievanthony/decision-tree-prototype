@@ -23,20 +23,48 @@ import com.dmitrievanthony.tree.core.Node;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utils class that contains common operations.
+ */
 public class Utils {
-
+    /**
+     * Sorts the specified arrays synchronously (based on {@code x} values).
+     *
+     * @param x Array with master data.
+     * @param y Array with dependent data.
+     * @param <T> Type of dependent data.
+     */
     public static <T> void quickSort(double[] x, T[] y) {
         quickSort(x, y, 0, x.length - 1);
     }
 
+    /**
+     * Sorts the specified arrays synchronously (based on {@code x} values).
+     *
+     * @param x Array with master data.
+     * @param y Array with dependent data.
+     */
     public static void quickSort(double[] x, double[] y) {
         quickSort(x, y, 0, x.length - 1);
     }
 
+    /**
+     * Sorts the specified arrays synchronously (based on {@code x} values).
+     *
+     * @param x Array with master data.
+     * @param y Array with dependent data.
+     * @param col Column of x to be used.
+     */
     public static void quickSort(double[][] x, double[] y, int col) {
         quickSort(x, y, col, 0, x.length - 1);
     }
 
+    /**
+     * Prints decision tree node.
+     *
+     * @param node Decision tree node.
+     * @param deep Deep.
+     */
     public static void print(Node node, int deep) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < deep; i++)
@@ -57,6 +85,7 @@ public class Utils {
             throw new IllegalStateException();
     }
 
+    /** */
     private static <T> void quickSort(double[] x, T[] y, int from, int to) {
         if (from < to) {
             double pivot = x[(from + to) / 2];
@@ -80,6 +109,7 @@ public class Utils {
         }
     }
 
+    /** */
     private static void quickSort(double[] x, double[] y, int from, int to) {
         if (from < to) {
             double pivot = x[(from + to) / 2];
@@ -103,6 +133,7 @@ public class Utils {
         }
     }
 
+    /** */
     private static void quickSort(double[][] x, double[] y, int col, int from, int to) {
         if (from < to) {
             double pivot = x[(from + to) / 2][col];

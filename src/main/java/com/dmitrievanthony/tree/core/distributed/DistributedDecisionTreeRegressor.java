@@ -24,12 +24,22 @@ import com.dmitrievanthony.tree.core.distributed.criteria.ImpurityMeasureCalcula
 import com.dmitrievanthony.tree.core.distributed.dataset.Dataset;
 import java.util.function.Predicate;
 
+/**
+ * Decision tree regressor based on distributed decision tree trainer that allows to fit trees using row-partitioned
+ * dataset.
+ */
 public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MSEImpurityMeasure> {
-
+    /**
+     * Constructs a new decision tree regressor.
+     *
+     * @param maxDeep Max tree deep.
+     * @param minImpurityDecrease Min impurity decrease.
+     */
     public DistributedDecisionTreeRegressor(int maxDeep, double minImpurityDecrease) {
         super(maxDeep, minImpurityDecrease);
     }
 
+    /** {@inheritDoc} */
     @Override LeafNode createLeafNode(Dataset dataset, Predicate<double[]> pred) {
         double[] aa = dataset.compute(part -> {
             double[] res = new double[2];
@@ -53,6 +63,7 @@ public class DistributedDecisionTreeRegressor extends DistributedDecisionTree<MS
         return new LeafNode(aa[0]);
     }
 
+    /** {@inheritDoc} */
     @Override ImpurityMeasureCalculator<MSEImpurityMeasure> getImpurityMeasureCalculator(Dataset dataset) {
         return new MSEImpurityMeasureCalculator();
     }

@@ -17,18 +17,28 @@
 
 package com.dmitrievanthony.tree.core;
 
+/**
+ * Decision tree leaf node which contains value.
+ */
 public class LeafNode implements Node {
-
+    /** Value of the node. */
     private final double val;
 
+    /**
+     * Constructs a new decision tree leaf node.
+     *
+     * @param val Value of the node.
+     */
     public LeafNode(double val) {
         this.val = val;
     }
 
+    /** {@inheritDoc} */
     @Override public double predict(double[] features) {
         return val;
     }
 
+    /** */
     public double getVal() {
         return val;
     }

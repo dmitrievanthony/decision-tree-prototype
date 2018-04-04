@@ -22,29 +22,55 @@ import com.dmitrievanthony.tree.core.LeafNode;
 import com.dmitrievanthony.tree.core.Node;
 import com.dmitrievanthony.tree.utils.Utils;
 import com.dmitrievanthony.tree.core.local.criteria.SplitPoint;
-import com.dmitrievanthony.tree.core.local.criteria.SplittingCriteria;
+import com.dmitrievanthony.tree.core.local.criteria.SplitCalculator;
 import java.util.Arrays;
-import java.util.Optional;
 
+/**
+ * Local decision tree trainer.
+ */
 public abstract class LocalDecisionTree {
+    /** Split calculator. */
+    private final SplitCalculator splitCalc;
 
-    private final SplittingCriteria criteria;
-
+    /** Max tree deep. */
     private final int maxDeep;
 
+    /** Min impurity decrease. */
     private final double minImpurityDecrease;
 
-    public LocalDecisionTree(SplittingCriteria criteria, int maxDeep, double minImpurityDecrease) {
-        this.criteria = criteria;
+    /**
+     * Constructs a new instance of local decision tree trainer.
+     *
+     * @param splitCalc Split calculator.
+     * @param maxDeep Max tree deep.
+     * @param minImpurityDecrease Min impurity decrease.
+     */
+    public LocalDecisionTree(SplitCalculator splitCalc, int maxDeep, double minImpurityDecrease) {
+        this.splitCalc = splitCalc;
         this.maxDeep = maxDeep;
         this.minImpurityDecrease = minImpurityDecrease;
     }
 
+    /**
+     * Builds a new tree trained on the specified features and labels.
+     *
+     * @param features Features.
+     * @param labels Labels.
+     * @return Decision tree.
+     */
     public Node fit(double[][] features, double[] labels) {
-        return fit(features, labels, 0);
+        return split(features, labels, 0);
     }
 
-    private Node fit(double[][] features, double[] labels, int deep) {
+    /**
+     * Splits the features and labels, and returns decision tree node.
+     *
+     * @param features Features.
+     * @param labels Labels.
+     * @param deep Current decision tree deep.
+     * @return Decision tree node.
+     */
+    private Node split(double[][] features, double[] labels, int deep) {
         if (deep >= maxDeep)
             return createLeafNode(labels);
 
@@ -54,9 +80,9 @@ public abstract class LocalDecisionTree {
         for (int col = 0; col < features[0].length; col++) {
             Utils.quickSort(features, labels, col);
 
-            SplitPoint splitPnt = criteria.findBestSplit(labels);
+            SplitPoint splitPnt = splitCalc.findBestSplit(labels);
 
-            if (bestSplitPnt == null || splitPnt.getCriteriaVal() < bestSplitPnt.getCriteriaVal()) {
+            if (bestSplitPnt == null || splitPnt.getImpurityVal() < bestSplitPnt.getImpurityVal()) {
                 bestSplitPnt = splitPnt;
                 bestCol = col;
             }
@@ -76,10 +102,16 @@ public abstract class LocalDecisionTree {
         return new ConditionalNode(
             bestCol,
             (leftFeatures[leftFeatures.length - 1][bestCol] + rightFeatures[0][bestCol]) / 2,
-            fit(rightFeatures, rightLabels, deep + 1),
-            fit(leftFeatures, leftLabels, deep + 1)
+            split(rightFeatures, rightLabels, deep + 1),
+            split(leftFeatures, leftLabels, deep + 1)
         );
     }
 
+    /**
+     * Creates a leaf node.
+     *
+     * @param labels Labels.
+     * @return Leaf node.
+     */
     abstract LeafNode createLeafNode(double[] labels);
 }

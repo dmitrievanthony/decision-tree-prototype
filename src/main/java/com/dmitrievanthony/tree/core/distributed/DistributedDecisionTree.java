@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 /**
  * Distributed decision tree trainer that allows to fit trees using row-partitioned dataset.
  *
- * @param <T>
+ * @param <T> Type of impurity measure.
  */
 public abstract class DistributedDecisionTree<T extends ImpurityMeasure<T>> {
     /** Max tree deep. */

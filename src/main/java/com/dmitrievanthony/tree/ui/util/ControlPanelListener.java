@@ -17,11 +17,26 @@
 
 package com.dmitrievanthony.tree.ui.util;
 
+/**
+ * Control panel listener.
+ */
 public interface ControlPanelListener {
-
+    /**
+     * Do on "max deep" change.
+     *
+     * @param maxDeep New value of "max deep".
+     */
     public void doOnMaxDeepChange(int maxDeep);
 
+    /**
+     * Do on "min impurity decrease" change.
+     *
+     * @param minImpurityDecrease New value of "min impurity decrease" change.
+     */
     public void doOnMinImpurityDecreaseChange(double minImpurityDecrease);
 
+    /**
+     * Do on "clean".
+     */
     public void doOnClean();
 }

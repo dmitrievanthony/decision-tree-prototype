@@ -18,18 +18,27 @@
 package com.dmitrievanthony.tree.core.local;
 
 import com.dmitrievanthony.tree.core.LeafNode;
-import com.dmitrievanthony.tree.core.local.criteria.MSESplittingCriteria;
-import com.dmitrievanthony.tree.core.local.criteria.SplittingCriteria;
-import java.util.Optional;
+import com.dmitrievanthony.tree.core.local.criteria.MSESplitCalculator;
+import com.dmitrievanthony.tree.core.local.criteria.SplitCalculator;
 
+/**
+ * Decision tree regressor based on local decision tree trainer.
+ */
 public class LocalDecisionTreeRegressor extends LocalDecisionTree {
+    /** Default split calculator used for regression. */
+    private static final SplitCalculator defaultSplitCalc = new MSESplitCalculator();
 
-    private static final SplittingCriteria defaultSplittingCriteria = new MSESplittingCriteria();
-
+    /**
+     * Constructs a new instance of local decision tree regressor.
+     *
+     * @param maxDeep Max tree deep.
+     * @param minImpurityDecrease Min impurity decrease.
+     */
     public LocalDecisionTreeRegressor(int maxDeep, double minImpurityDecrease) {
-        super(defaultSplittingCriteria, maxDeep, minImpurityDecrease);
+        super(defaultSplitCalc, maxDeep, minImpurityDecrease);
     }
 
+    /** {@inheritDoc} */
     @Override LeafNode createLeafNode(double[] labels) {
         double mean = 0;
         for (int i = 0; i < labels.length; i++)

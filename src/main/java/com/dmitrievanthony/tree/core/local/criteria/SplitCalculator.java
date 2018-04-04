@@ -17,7 +17,15 @@
 
 package com.dmitrievanthony.tree.core.local.criteria;
 
-public interface SplittingCriteria {
-
+/**
+ * Base interface for split calculators which find a split point that minimizes impurity.
+ */
+public interface SplitCalculator {
+    /**
+     * Returns a split point that minimizes impurity.
+     *
+     * @param labels Labels.
+     * @return Split point that minimizes impurity.
+     */
     public SplitPoint findBestSplit(double[] labels);
 }

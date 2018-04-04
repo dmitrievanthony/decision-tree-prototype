@@ -17,7 +17,15 @@
 
 package com.dmitrievanthony.tree.core;
 
+/**
+ * Base interface for decision tree node.
+ */
 public interface Node {
-
+    /**
+     * Makes a prediction for the object specified by the given features.
+     *
+     * @param features Features.
+     * @return Prediction.
+     */
     double predict(double[] features);
 }

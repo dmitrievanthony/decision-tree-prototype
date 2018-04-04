@@ -17,16 +17,30 @@
 
 package com.dmitrievanthony.tree.core;
 
+/**
+ * Decision tree conditional (non-leaf) node.
+ */
 public class ConditionalNode implements Node {
-
+    /** Column of the value to be tested. */
     private final int col;
 
+    /** Threshold. */
     private final double threshold;
 
+    /** Node that will be used in case tested value is greater then threshold. */
     private final Node thenNode;
 
+    /** Node that will be used in case tested value is not greater then threshold. */
     private final Node elseNode;
 
+    /**
+     * Constructs a new instance of decision tree conditional node.
+     *
+     * @param col Column of the value to be tested.
+     * @param threshold Threshold.
+     * @param thenNode Node that will be used in case tested value is greater then threshold.
+     * @param elseNode Node that will be used in case tested value is not greater then threshold.
+     */
     public ConditionalNode(int col, double threshold, Node thenNode, Node elseNode) {
         this.col = col;
         this.threshold = threshold;
@@ -34,22 +48,27 @@ public class ConditionalNode implements Node {
         this.elseNode = elseNode;
     }
 
+    /** {@inheritDoc} */
     @Override public double predict(double[] features) {
         return features[col] > threshold ? thenNode.predict(features) : elseNode.predict(features);
     }
 
+    /** */
     public int getCol() {
         return col;
     }
 
+    /** */
     public double getThreshold() {
         return threshold;
     }
 
+    /** */
     public Node getThenNode() {
         return thenNode;
     }
 
+    /** */
     public Node getElseNode() {
         return elseNode;
     }

@@ -17,29 +17,34 @@
 
 package com.dmitrievanthony.tree.core.local.criteria;
 
+/**
+ * Utils class that represents split point.
+ */
 public class SplitPoint {
-
+    /** Left part size. */
     private final int leftSize;
 
-    private final double criteriaVal;
+    /** Impurity value. */
+    private final double impurityVal;
 
-    public SplitPoint(int leftSize, double criteriaVal) {
+    /**
+     * Constructs a new instance of split point.
+     *
+     * @param leftSize Left part size.
+     * @param impurityVal Impurity value.
+     */
+    public SplitPoint(int leftSize, double impurityVal) {
         this.leftSize = leftSize;
-        this.criteriaVal = criteriaVal;
+        this.impurityVal = impurityVal;
     }
 
+    /** */
     public int getLeftSize() {
         return leftSize;
     }
 
-    public double getCriteriaVal() {
-        return criteriaVal;
-    }
-
-    @Override public String toString() {
-        return "SplitPoint{" +
-            "leftSize=" + leftSize +
-            ", criteriaVal=" + criteriaVal +
-            '}';
+    /** */
+    public double getImpurityVal() {
+        return impurityVal;
     }
 }

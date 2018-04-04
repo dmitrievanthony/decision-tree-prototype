@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 public class GiniSplittingCriteriaTest {
 
-    private final GiniSplittingCriteria criteria = new GiniSplittingCriteria();
+    private final GiniSplitCalculator criteria = new GiniSplitCalculator();
 
     @Test
     public void testFindBestSplitWithTwoClasses() {
