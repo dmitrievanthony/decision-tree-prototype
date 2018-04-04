@@ -35,7 +35,7 @@ public class DistributedClassificationUIApplication extends ClassificationUIAppl
     public static void main(String... args) {
         JFrame f = new JFrame();
         f.setBackground(Color.decode("#2B2B2B"));
-        f.setSize(500, 650);
+        f.setSize(500, 620);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         ControlPanel ctrlPanel = new ControlPanel();

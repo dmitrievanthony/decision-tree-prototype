@@ -29,7 +29,7 @@ public class LocalClassificationUIApplication extends ClassificationUIApplicatio
 
     public static void main(String... args) {
         JFrame f = new JFrame();
-        f.setSize(500, 650);
+        f.setSize(500, 620);
         f.setBackground(Color.decode("#2B2B2B"));
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
