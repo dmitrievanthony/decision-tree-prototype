@@ -105,7 +105,8 @@ public class StepFunction<T extends ImpurityMeasure<T>> {
 
                 resY[target] = override ? resY[target] : null;
                 resY[target] = i > 0 ? resY[i - 1] : null;
-                resY[target] = resY[target] == null ? b.y[rightPtr] : resY[target].add(y[rightPtr]);
+
+                resY[target] = resY[target] == null ? b.y[rightPtr] : resY[target].add(b.y[rightPtr]);
 
                 if (rightPtr > 0)
                     resY[target] = resY[target].subtract(b.y[rightPtr - 1]);

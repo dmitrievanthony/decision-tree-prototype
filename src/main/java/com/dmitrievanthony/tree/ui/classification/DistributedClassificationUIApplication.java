@@ -24,6 +24,7 @@ import com.dmitrievanthony.tree.core.distributed.dataset.Partition;
 import com.dmitrievanthony.tree.ui.util.ControlPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.JFrame;
@@ -49,10 +50,12 @@ public class DistributedClassificationUIApplication extends ClassificationUIAppl
 
     @Override Node classify(double[][] x, double[] y, int maxDeep, double minImpurityDecrease) {
 
-        Partition part = new Partition(x, y);
+        Partition part1 = new Partition(Arrays.copyOfRange(x, 0, x.length / 2), Arrays.copyOfRange(y, 0, x.length / 2));
+        Partition part2 = new Partition(Arrays.copyOfRange(x, x.length / 2, x.length), Arrays.copyOfRange(y, x.length / 2, x.length));
 
         Set<Partition> parts = new HashSet<>();
-        parts.add(part);
+        parts.add(part1);
+        parts.add(part2);
 
         Dataset dataset = new Dataset(parts);
 
